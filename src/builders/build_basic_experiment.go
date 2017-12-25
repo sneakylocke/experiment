@@ -1,8 +1,10 @@
 package builders
 
-import e "experiment"
+import (
+	e "github.com/sneakylocke/experiment/src/experiment"
+)
 
-func NewSimpleExperiment(experimentName string, variableName string, weights []uint32, values []float64) *Experiment {
+func NewSimpleExperiment(experimentName string, variableName string, weights []uint32, values []float64) *e.Experiment {
 	experiment := &e.Experiment{}
 
 	// Setup the simpler aspects of the experiment

@@ -1,7 +1,7 @@
 package experiment
 
 import (
-	"errors"
+	"github.com/juju/errors"
 	"hash/fnv"
 )
 
@@ -11,7 +11,7 @@ const (
 
 type IExperimentService interface {
 	Reload(experiments []Experiment) error
-	GetVariable(name string, userID string, userInfo interface{}) (*Value, *Experiment, error)
+	GetVariable(name string, userID string, userInfo interface{}) (*Experiment, *Audience, *Value, error)
 }
 
 type experimentService struct {
@@ -46,11 +46,11 @@ func (service *experimentService) Reload(experiments []Experiment) error {
 	return nil
 }
 
-func (service *experimentService) GetVariable(variableName string, userID string, userInfo interface{}) (*Value, *Experiment, error) {
+func (service *experimentService) GetVariable(variableName string, userID string, userInfo interface{}) (*Experiment, *Audience, *Value, error) {
 	experiments, experimentsOk := service.variableMap[variableName]
 
 	if !experimentsOk {
-		return nil, nil, nil
+		return nil, nil, nil, errors.Errorf("no experiment matching variable '%s'", variableName)
 	}
 
 	for _, experiment := range experiments {
@@ -71,15 +71,15 @@ func (service *experimentService) GetVariable(variableName string, userID string
 				value, err := service.getVariable(&experiment, &audience, variableName, userID)
 
 				if err == nil {
-					return value, &experiment, err
+					return &experiment, &audience, value, nil
 				} else {
-					return nil, nil, err
+					return nil, nil, nil, err
 				}
 			}
 		}
 	}
 
-	return nil, nil, errors.New("failed to find variable")
+	return nil, nil, nil, errors.New("failed to find variable")
 }
 
 func (service *experimentService) getVariable(experiment *Experiment, audience *Audience, variableName string, userID string) (*Value, error) {
@@ -112,7 +112,7 @@ func (service *experimentService) getVariable(experiment *Experiment, audience *
 	}
 
 	// Create a valueGroup index based on experiment, variable, and user
-	hash := hashNumber % uint32(weightSum)
+	hash := hashNumber % weightSum
 
 	// Find the appropriate value to return based on the hash
 	for i, weight := range weights {

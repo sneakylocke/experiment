@@ -14,10 +14,7 @@ build: lint
 	$(GOBUILD) -v
 
 test:
-	$(GOTEST) -v -cover -coverprofile=coverage/coverage.out
-
-cover: test
-	$(GOTOOL) cover -html=coverage/coverage.out
+	$(GOTEST) ./... -v
 
 clean: 
 	$(GOCLEAN)

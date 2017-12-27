@@ -11,21 +11,21 @@ const (
 	MAX_ITERATIONS = 100
 )
 
-func TestGetVariable(t *testing.T) {
+func TestGetFloatVariable(t *testing.T) {
 	// User info
 	userID := "some_user_id"
 
 	// Simple experiment 1, evenly distributed
-	experiment1 := NewSimpleExperiment(
+	experiment1 := NewBasicFloatExperiment(
 		"experiment_1",
-		"velocity",
+		"variable_1",
 		[]uint32{1, 1, 1},
 		[]float64{1.0, 2.0, 3.0})
 
 	// Simple experiment 2, forces the value of 6
-	experiment2 := NewSimpleExperiment(
+	experiment2 := NewBasicFloatExperiment(
 		"experiment_2",
-		"position",
+		"variable_2",
 		[]uint32{0, 0, 1},
 		[]float64{4.0, 5.0, 6.0})
 
@@ -41,14 +41,109 @@ func TestGetVariable(t *testing.T) {
 	service.Reload([]e.Experiment{*experiment1, *experiment2})
 
 	// Check velocity
-	e1, _, _, err1 := service.GetVariable("velocity", userID, nil)
+	e1, _, _, err1 := service.GetVariable("variable_1", userID, nil)
 	assert.Equal(t, "experiment_1", e1.Name)
 	assert.Nil(t, err1)
 
 	// Check position
-	e2, _, v2, err2 := service.GetVariable("position", userID, nil)
+	e2, _, v2, err2 := service.GetVariable("variable_2", userID, nil)
 	assert.Equal(t, "experiment_2", e2.Name)
 	assert.Equal(t, 6.0, v2.FloatValue)
+	assert.Nil(t, err2)
+
+	// Check fake variable
+	e3, a3, v3, err3 := service.GetVariable("fake_variable", userID, nil)
+	assert.Nil(t, e3)
+	assert.Nil(t, a3)
+	assert.Nil(t, v3)
+	assert.NotNil(t, err3)
+}
+func TestGetBoolVariable(t *testing.T) {
+	// User info
+	userID := "some_user_id"
+
+	// Simple experiment 1, evenly distributed
+	experiment1 := NewBasicBoolExperiment(
+		"experiment_1",
+		"variable_1",
+		[]uint32{1, 1},
+		[]bool{true, false})
+
+	// Simple experiment 2, forces the value of 6
+	experiment2 := NewBasicBoolExperiment(
+		"experiment_2",
+		"variable_2",
+		[]uint32{0, 1},
+		[]bool{true, false})
+
+	// Assert that the created experiments are valid
+	valid1, _ := experiment1.Validate()
+	valid2, _ := experiment2.Validate()
+
+	assert.True(t, valid1)
+	assert.True(t, valid2)
+
+	// Load the experiment service
+	service := e.NewExperimentService()
+	service.Reload([]e.Experiment{*experiment1, *experiment2})
+
+	// Check velocity
+	e1, _, _, err1 := service.GetVariable("variable_1", userID, nil)
+	assert.Equal(t, "experiment_1", e1.Name)
+	assert.Nil(t, err1)
+
+	// Check position
+	e2, _, v2, err2 := service.GetVariable("variable_2", userID, nil)
+	assert.Equal(t, "experiment_2", e2.Name)
+	assert.Equal(t, false, v2.BoolValue)
+	assert.Nil(t, err2)
+
+	// Check fake variable
+	e3, a3, v3, err3 := service.GetVariable("fake_variable", userID, nil)
+	assert.Nil(t, e3)
+	assert.Nil(t, a3)
+	assert.Nil(t, v3)
+	assert.NotNil(t, err3)
+}
+
+func TestGetIntVariable(t *testing.T) {
+	// User info
+	userID := "some_user_id"
+
+	// Simple experiment 1, evenly distributed
+	experiment1 := NewBasicIntExperiment(
+		"experiment_1",
+		"variable_1",
+		[]uint32{1, 1, 1},
+		[]int64{1, 2, 3})
+
+	// Simple experiment 2, forces the value of 6
+	experiment2 := NewBasicIntExperiment(
+		"experiment_2",
+		"variable_2",
+		[]uint32{0, 0, 1},
+		[]int64{4, 5, 6})
+
+	// Assert that the created experiments are valid
+	valid1, _ := experiment1.Validate()
+	valid2, _ := experiment2.Validate()
+
+	assert.True(t, valid1)
+	assert.True(t, valid2)
+
+	// Load the experiment service
+	service := e.NewExperimentService()
+	service.Reload([]e.Experiment{*experiment1, *experiment2})
+
+	// Check velocity
+	e1, _, _, err1 := service.GetVariable("variable_1", userID, nil)
+	assert.Equal(t, "experiment_1", e1.Name)
+	assert.Nil(t, err1)
+
+	// Check position
+	e2, _, v2, err2 := service.GetVariable("variable_2", userID, nil)
+	assert.Equal(t, "experiment_2", e2.Name)
+	assert.Equal(t, int64(6), v2.IntValue)
 	assert.Nil(t, err2)
 
 	// Check fake variable
@@ -63,7 +158,7 @@ func TestGetVariableDistribution(t *testing.T) {
 	floatValues := []float64{1.0, 2.0, 3.0}
 
 	// Simple experiment 1, evenly distributed
-	experiment := NewSimpleExperiment(
+	experiment := NewBasicFloatExperiment(
 		"experiment_1",
 		"velocity",
 		[]uint32{1, 1, 1},

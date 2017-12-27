@@ -4,7 +4,59 @@ import (
 	e "github.com/sneakylocke/experiment/src/experiment"
 )
 
-func NewSimpleExperiment(experimentName string, variableName string, weights []uint32, values []float64) *e.Experiment {
+func NewBasicFloatExperiment(experimentName string, variableName string, weights []uint32, values []float64) *e.Experiment {
+	experiment := newExperiment(experimentName, variableName)
+
+	// Setup ValueGroup
+	valueGroup := e.NewFloatValueGroup(variableName, weights, values)
+
+	// Setup Audience
+	experiment.Audiences[0].ControlValue = valueGroup.WeightedValues[0].Value
+	experiment.Audiences[0].ValueGroups[variableName] = *valueGroup
+
+	return experiment
+}
+
+func NewBasicIntExperiment(experimentName string, variableName string, weights []uint32, values []int64) *e.Experiment {
+	experiment := newExperiment(experimentName, variableName)
+
+	// Setup ValueGroup
+	valueGroup := e.NewIntValueGroup(variableName, weights, values)
+
+	// Setup Audience
+	experiment.Audiences[0].ControlValue = valueGroup.WeightedValues[0].Value
+	experiment.Audiences[0].ValueGroups[variableName] = *valueGroup
+
+	return experiment
+}
+
+func NewBasicBoolExperiment(experimentName string, variableName string, weights []uint32, values []bool) *e.Experiment {
+	experiment := newExperiment(experimentName, variableName)
+
+	// Setup ValueGroup
+	valueGroup := e.NewBoolValueGroup(variableName, weights, values)
+
+	// Setup Audience
+	experiment.Audiences[0].ControlValue = valueGroup.WeightedValues[0].Value
+	experiment.Audiences[0].ValueGroups[variableName] = *valueGroup
+
+	return experiment
+}
+
+func NewBasicArbitraryExperiment(experimentName string, variableName string, weights []uint32, values []interface{}) *e.Experiment {
+	experiment := newExperiment(experimentName, variableName)
+
+	// Setup ValueGroup
+	valueGroup := e.NewArbitraryValueGroup(variableName, weights, values)
+
+	// Setup Audience
+	experiment.Audiences[0].ControlValue = valueGroup.WeightedValues[0].Value
+	experiment.Audiences[0].ValueGroups[variableName] = *valueGroup
+
+	return experiment
+}
+
+func newExperiment(experimentName string, variableName string) *e.Experiment {
 	experiment := &e.Experiment{}
 
 	// Setup the simpler aspects of the experiment
@@ -13,13 +65,8 @@ func NewSimpleExperiment(experimentName string, variableName string, weights []u
 	experiment.Salt = experimentName
 	experiment.Enabled = true
 
-	// Setup ValueGroup
-	valueGroup := e.NewFloatValueGroup(variableName, weights, values)
-
 	// Setup Audience
 	audience := e.NewAudience()
-	audience.ControlValue = valueGroup.WeightedValues[0].Value
-	audience.ValueGroups[variableName] = *valueGroup
 
 	// Add audience
 	experiment.Audiences = make([]e.Audience, 1, 1)

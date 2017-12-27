@@ -3,12 +3,11 @@ package experiment
 import "github.com/juju/errors"
 
 type Audience struct {
-	Name         string
-	Constraints  []Constraint
-	ControlValue Value
-	ValueGroups  map[string]ValueGroup
-	Exposure     float64
-	Enabled      bool
+	Name        string
+	Constraints []Constraint
+	ValueGroups map[string]ValueGroup
+	Exposure    float64
+	Enabled     bool
 }
 
 func NewAudience() *Audience {

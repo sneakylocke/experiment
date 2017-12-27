@@ -3,6 +3,7 @@ package experiment
 type ValueGroup struct {
 	Name           string
 	Salt           string
+	ControlValue   Value
 	WeightedValues []WeightedValue
 }
 

@@ -35,9 +35,9 @@ func (b *OneVariableBasicBuilder) AddFloat(variableName string, weights []uint32
 
 	// Setup ValueGroup
 	valueGroup := e.NewFloatValueGroup(variableName, weights, values)
+	valueGroup.ControlValue = valueGroup.WeightedValues[0].Value
 
 	// Setup Audience
-	b.Experiment.Audiences[0].ControlValue = valueGroup.WeightedValues[0].Value
 	b.Experiment.Audiences[0].ValueGroups[variableName] = *valueGroup
 
 	b.Sealed = true
@@ -61,9 +61,9 @@ func (b *OneVariableBasicBuilder) AddInt(variableName string, weights []uint32, 
 
 	// Setup ValueGroup
 	valueGroup := e.NewIntValueGroup(variableName, weights, values)
+	valueGroup.ControlValue = valueGroup.WeightedValues[0].Value
 
 	// Setup Audience
-	b.Experiment.Audiences[0].ControlValue = valueGroup.WeightedValues[0].Value
 	b.Experiment.Audiences[0].ValueGroups[variableName] = *valueGroup
 
 	b.Sealed = true
@@ -87,9 +87,9 @@ func (b *OneVariableBasicBuilder) AddBool(variableName string, weights []uint32,
 
 	// Setup ValueGroup
 	valueGroup := e.NewBoolValueGroup(variableName, weights, values)
+	valueGroup.ControlValue = valueGroup.WeightedValues[0].Value
 
 	// Setup Audience
-	b.Experiment.Audiences[0].ControlValue = valueGroup.WeightedValues[0].Value
 	b.Experiment.Audiences[0].ValueGroups[variableName] = *valueGroup
 
 	b.Sealed = true

@@ -105,7 +105,7 @@ func (service *experimentService) getVariable(experiment *Experiment, audience *
 
 	// Return the control value if there is not enough exposure for this user
 	if fraction > audience.Exposure {
-		return &audience.ControlValue, nil
+		return &valueGroup.ControlValue, nil
 	}
 
 	// Build a distribution in order to randomize which value is returned
@@ -120,7 +120,7 @@ func (service *experimentService) getVariable(experiment *Experiment, audience *
 	// Return control if there are no weights
 	if weightSum == 0 {
 		log.Warnf("Weight sum is 0, returning the control value")
-		return &audience.ControlValue, nil
+		return &valueGroup.ControlValue, nil
 	}
 
 	// Create a valueGroup index based on experiment, variable, and user

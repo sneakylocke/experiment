@@ -2,7 +2,7 @@ package builders
 
 import (
 	"fmt"
-	e "github.com/sneakylocke/experiment/src/experiment"
+	e "github.com/sneakylocke/experiment"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -11,19 +11,33 @@ const (
 	MAX_ITERATIONS = 100
 )
 
+func TestFail(t *testing.T) {
+	experiment1, err1 := NewBasicFloatExperiment("experiment_1", "variable_1", []uint32{1}, []float64{1.0, 2.0, 3.0})
+	assert.Nil(t, experiment1)
+	assert.NotNil(t, err1)
+
+	experiment2, err2 := NewBasicIntExperiment("experiment_1", "variable_1", []uint32{}, []int64{1, 2, 3})
+	assert.Nil(t, experiment2)
+	assert.NotNil(t, err2)
+
+	experiment3, err3 := NewBasicBoolExperiment("experiment_1", "variable_1", []uint32{1, 1, 1}, []bool{false, true})
+	assert.Nil(t, experiment3)
+	assert.NotNil(t, err3)
+}
+
 func TestGetFloatVariable(t *testing.T) {
 	// User info
 	userID := "some_user_id"
 
 	// Simple experiment 1, evenly distributed
-	experiment1 := NewBasicFloatExperiment(
+	experiment1, _ := NewBasicFloatExperiment(
 		"experiment_1",
 		"variable_1",
 		[]uint32{1, 1, 1},
 		[]float64{1.0, 2.0, 3.0})
 
 	// Simple experiment 2, forces the value of 6
-	experiment2 := NewBasicFloatExperiment(
+	experiment2, _ := NewBasicFloatExperiment(
 		"experiment_2",
 		"variable_2",
 		[]uint32{0, 0, 1},
@@ -63,14 +77,14 @@ func TestGetBoolVariable(t *testing.T) {
 	userID := "some_user_id"
 
 	// Simple experiment 1, evenly distributed
-	experiment1 := NewBasicBoolExperiment(
+	experiment1, _ := NewBasicBoolExperiment(
 		"experiment_1",
 		"variable_1",
 		[]uint32{1, 1},
 		[]bool{true, false})
 
 	// Simple experiment 2, forces the value of 6
-	experiment2 := NewBasicBoolExperiment(
+	experiment2, _ := NewBasicBoolExperiment(
 		"experiment_2",
 		"variable_2",
 		[]uint32{0, 1},
@@ -111,14 +125,14 @@ func TestGetIntVariable(t *testing.T) {
 	userID := "some_user_id"
 
 	// Simple experiment 1, evenly distributed
-	experiment1 := NewBasicIntExperiment(
+	experiment1, _ := NewBasicIntExperiment(
 		"experiment_1",
 		"variable_1",
 		[]uint32{1, 1, 1},
 		[]int64{1, 2, 3})
 
 	// Simple experiment 2, forces the value of 6
-	experiment2 := NewBasicIntExperiment(
+	experiment2, _ := NewBasicIntExperiment(
 		"experiment_2",
 		"variable_2",
 		[]uint32{0, 0, 1},
@@ -158,7 +172,7 @@ func TestGetVariableDistribution(t *testing.T) {
 	floatValues := []float64{1.0, 2.0, 3.0}
 
 	// Simple experiment 1, evenly distributed
-	experiment := NewBasicFloatExperiment(
+	experiment, _ := NewBasicFloatExperiment(
 		"experiment_1",
 		"velocity",
 		[]uint32{1, 1, 1},

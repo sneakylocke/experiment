@@ -11,6 +11,35 @@ const (
 	MAX_ITERATIONS = 100
 )
 
+func TestNoWeights(t *testing.T) {
+
+	// User info
+	userID := "some_user_id"
+
+	// Simple experiment 1, evenly distributed
+	experiment1, _ := NewBasicFloatExperiment(
+		"experiment_1",
+		"variable_1",
+		[]uint32{0, 0, 0},
+		[]float64{1.0, 2.0, 3.0})
+
+	// Assert that the created experiments are valid
+	valid1, _ := experiment1.Validate()
+
+	assert.True(t, valid1)
+
+	// Load the experiment service
+	service := e.NewExperimentService()
+	service.Reload([]e.Experiment{*experiment1})
+
+	// Check variable_1. Should be control
+	result, err1 := service.GetVariable("variable_1", userID, nil)
+	assert.Equal(t, "experiment_1", result.Experiment.Name)
+	assert.Equal(t, 1.0, result.Value.FloatValue)
+	assert.Nil(t, err1)
+
+}
+
 func TestFail(t *testing.T) {
 	experiment1, err1 := NewBasicFloatExperiment("experiment_1", "variable_1", []uint32{1}, []float64{1.0, 2.0, 3.0})
 	assert.Nil(t, experiment1)
@@ -54,12 +83,12 @@ func TestGetFloatVariable(t *testing.T) {
 	service := e.NewExperimentService()
 	service.Reload([]e.Experiment{*experiment1, *experiment2})
 
-	// Check velocity
+	// Check variable_1
 	result, err1 := service.GetVariable("variable_1", userID, nil)
 	assert.Equal(t, "experiment_1", result.Experiment.Name)
 	assert.Nil(t, err1)
 
-	// Check position
+	// Check variable_2
 	result, err2 := service.GetVariable("variable_2", userID, nil)
 	assert.Equal(t, "experiment_2", result.Experiment.Name)
 	assert.Equal(t, 6.0, result.Value.FloatValue)
@@ -72,6 +101,7 @@ func TestGetFloatVariable(t *testing.T) {
 	assert.Nil(t, result.Value)
 	assert.NotNil(t, err3)
 }
+
 func TestGetBoolVariable(t *testing.T) {
 	// User info
 	userID := "some_user_id"
@@ -101,12 +131,12 @@ func TestGetBoolVariable(t *testing.T) {
 	service := e.NewExperimentService()
 	service.Reload([]e.Experiment{*experiment1, *experiment2})
 
-	// Check velocity
+	// Check variable_1
 	result, err1 := service.GetVariable("variable_1", userID, nil)
 	assert.Equal(t, "experiment_1", result.Experiment.Name)
 	assert.Nil(t, err1)
 
-	// Check position
+	// Check variable_2
 	result, err2 := service.GetVariable("variable_2", userID, nil)
 	assert.Equal(t, "experiment_2", result.Experiment.Name)
 	assert.Equal(t, false, result.Value.BoolValue)
@@ -149,12 +179,12 @@ func TestGetIntVariable(t *testing.T) {
 	service := e.NewExperimentService()
 	service.Reload([]e.Experiment{*experiment1, *experiment2})
 
-	// Check velocity
+	// Check variable_1
 	result, err1 := service.GetVariable("variable_1", userID, nil)
 	assert.Equal(t, "experiment_1", result.Experiment.Name)
 	assert.Nil(t, err1)
 
-	// Check position
+	// Check variable_2
 	result, err2 := service.GetVariable("variable_2", userID, nil)
 	assert.Equal(t, "experiment_2", result.Experiment.Name)
 	assert.Equal(t, int64(6), result.Value.IntValue)

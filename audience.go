@@ -1,5 +1,7 @@
 package experiment
 
+import "github.com/juju/errors"
+
 type Audience struct {
 	Name         string
 	Constraints  []Constraint
@@ -22,5 +24,9 @@ func NewAudience() *Audience {
 }
 
 func (a *Audience) validate() (bool, error) {
+	if a.Exposure < 0 || a.Exposure > 1 {
+		return false, errors.Errorf("invalid exposure: %f", a.Exposure)
+	}
+
 	return true, nil
 }

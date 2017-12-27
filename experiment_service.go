@@ -2,6 +2,7 @@ package experiment
 
 import (
 	"github.com/juju/errors"
+	log "github.com/sirupsen/logrus"
 	"hash/fnv"
 )
 
@@ -112,9 +113,14 @@ func (service *experimentService) getVariable(experiment *Experiment, audience *
 	weights := make([]uint32, len(valueGroup.WeightedValues))
 
 	for i, value := range valueGroup.WeightedValues {
-
 		weightSum += value.Weight
 		weights[i] = weightSum
+	}
+
+	// Return control if there are no weights
+	if weightSum == 0 {
+		log.Warnf("Weight sum is 0, returning the control value")
+		return &audience.ControlValue, nil
 	}
 
 	// Create a valueGroup index based on experiment, variable, and user

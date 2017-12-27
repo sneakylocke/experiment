@@ -10,7 +10,7 @@ BINARY_UNIX=$(BINARY_NAME)_unix
 BIN_DIR := $(GOPATH)/bin
 GOMETALINTER := $(BIN_DIR)/gometalinter
 
-build: lint
+build:
 	$(GOBUILD) -v
 
 test:

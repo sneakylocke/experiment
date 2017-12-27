@@ -41,21 +41,21 @@ func TestGetFloatVariable(t *testing.T) {
 	service.Reload([]e.Experiment{*experiment1, *experiment2})
 
 	// Check velocity
-	e1, _, _, err1 := service.GetVariable("variable_1", userID, nil)
-	assert.Equal(t, "experiment_1", e1.Name)
+	result, err1 := service.GetVariable("variable_1", userID, nil)
+	assert.Equal(t, "experiment_1", result.Experiment.Name)
 	assert.Nil(t, err1)
 
 	// Check position
-	e2, _, v2, err2 := service.GetVariable("variable_2", userID, nil)
-	assert.Equal(t, "experiment_2", e2.Name)
-	assert.Equal(t, 6.0, v2.FloatValue)
+	result, err2 := service.GetVariable("variable_2", userID, nil)
+	assert.Equal(t, "experiment_2", result.Experiment.Name)
+	assert.Equal(t, 6.0, result.Value.FloatValue)
 	assert.Nil(t, err2)
 
 	// Check fake variable
-	e3, a3, v3, err3 := service.GetVariable("fake_variable", userID, nil)
-	assert.Nil(t, e3)
-	assert.Nil(t, a3)
-	assert.Nil(t, v3)
+	result, err3 := service.GetVariable("fake_variable", userID, nil)
+	assert.Nil(t, result.Experiment)
+	assert.Nil(t, result.Audience)
+	assert.Nil(t, result.Value)
 	assert.NotNil(t, err3)
 }
 func TestGetBoolVariable(t *testing.T) {
@@ -88,21 +88,21 @@ func TestGetBoolVariable(t *testing.T) {
 	service.Reload([]e.Experiment{*experiment1, *experiment2})
 
 	// Check velocity
-	e1, _, _, err1 := service.GetVariable("variable_1", userID, nil)
-	assert.Equal(t, "experiment_1", e1.Name)
+	result, err1 := service.GetVariable("variable_1", userID, nil)
+	assert.Equal(t, "experiment_1", result.Experiment.Name)
 	assert.Nil(t, err1)
 
 	// Check position
-	e2, _, v2, err2 := service.GetVariable("variable_2", userID, nil)
-	assert.Equal(t, "experiment_2", e2.Name)
-	assert.Equal(t, false, v2.BoolValue)
+	result, err2 := service.GetVariable("variable_2", userID, nil)
+	assert.Equal(t, "experiment_2", result.Experiment.Name)
+	assert.Equal(t, false, result.Value.BoolValue)
 	assert.Nil(t, err2)
 
 	// Check fake variable
-	e3, a3, v3, err3 := service.GetVariable("fake_variable", userID, nil)
-	assert.Nil(t, e3)
-	assert.Nil(t, a3)
-	assert.Nil(t, v3)
+	result, err3 := service.GetVariable("fake_variable", userID, nil)
+	assert.Nil(t, result.Experiment)
+	assert.Nil(t, result.Audience)
+	assert.Nil(t, result.Value)
 	assert.NotNil(t, err3)
 }
 
@@ -136,21 +136,21 @@ func TestGetIntVariable(t *testing.T) {
 	service.Reload([]e.Experiment{*experiment1, *experiment2})
 
 	// Check velocity
-	e1, _, _, err1 := service.GetVariable("variable_1", userID, nil)
-	assert.Equal(t, "experiment_1", e1.Name)
+	result, err1 := service.GetVariable("variable_1", userID, nil)
+	assert.Equal(t, "experiment_1", result.Experiment.Name)
 	assert.Nil(t, err1)
 
 	// Check position
-	e2, _, v2, err2 := service.GetVariable("variable_2", userID, nil)
-	assert.Equal(t, "experiment_2", e2.Name)
-	assert.Equal(t, int64(6), v2.IntValue)
+	result, err2 := service.GetVariable("variable_2", userID, nil)
+	assert.Equal(t, "experiment_2", result.Experiment.Name)
+	assert.Equal(t, int64(6), result.Value.IntValue)
 	assert.Nil(t, err2)
 
 	// Check fake variable
-	e3, a3, v3, err3 := service.GetVariable("fake_variable", userID, nil)
-	assert.Nil(t, e3)
-	assert.Nil(t, a3)
-	assert.Nil(t, v3)
+	result, err3 := service.GetVariable("fake_variable", userID, nil)
+	assert.Nil(t, result.Experiment)
+	assert.Nil(t, result.Audience)
+	assert.Nil(t, result.Value)
 	assert.NotNil(t, err3)
 }
 
@@ -175,13 +175,13 @@ func TestGetVariableDistribution(t *testing.T) {
 	for i := 0; i < MAX_ITERATIONS; i++ {
 		userID := makeUserID(i)
 
-		_, _, v, _ := service.GetVariable("velocity", userID, nil)
+		result, _ := service.GetVariable("velocity", userID, nil)
 
-		if _, ok := valueMap[v.FloatValue]; !ok {
-			valueMap[v.FloatValue] = 0
+		if _, ok := valueMap[result.Value.FloatValue]; !ok {
+			valueMap[result.Value.FloatValue] = 0
 		}
 
-		valueMap[v.FloatValue]++
+		valueMap[result.Value.FloatValue]++
 	}
 
 	// Make sure all possible outcomes can occure

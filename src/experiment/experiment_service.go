@@ -9,9 +9,15 @@ const (
 	denominator = 10000
 )
 
+type QueryVariableResult struct {
+	Experiment *Experiment
+	Audience   *Audience
+	Value      *Value
+}
+
 type IExperimentService interface {
 	Reload(experiments []Experiment) error
-	GetVariable(name string, userID string, userInfo interface{}) (*Experiment, *Audience, *Value, error)
+	QueryVariable(name string, userID string, userInfo interface{}) (QueryVariableResult, error)
 }
 
 type experimentService struct {
@@ -46,11 +52,11 @@ func (service *experimentService) Reload(experiments []Experiment) error {
 	return nil
 }
 
-func (service *experimentService) GetVariable(variableName string, userID string, userInfo interface{}) (*Experiment, *Audience, *Value, error) {
+func (service *experimentService) GetVariable(variableName string, userID string, userInfo interface{}) (QueryVariableResult, error) {
 	experiments, experimentsOk := service.variableMap[variableName]
 
 	if !experimentsOk {
-		return nil, nil, nil, errors.Errorf("no experiment matching variable '%s'", variableName)
+		return QueryVariableResult{}, errors.Errorf("no experiment matching variable '%s'", variableName)
 	}
 
 	for _, experiment := range experiments {
@@ -71,15 +77,15 @@ func (service *experimentService) GetVariable(variableName string, userID string
 				value, err := service.getVariable(&experiment, &audience, variableName, userID)
 
 				if err == nil {
-					return &experiment, &audience, value, nil
+					return QueryVariableResult{Experiment: &experiment, Audience: &audience, Value: value}, nil
 				} else {
-					return nil, nil, nil, err
+					return QueryVariableResult{}, err
 				}
 			}
 		}
 	}
 
-	return nil, nil, nil, errors.New("failed to find variable")
+	return QueryVariableResult{}, errors.New("failed to find variable")
 }
 
 func (service *experimentService) getVariable(experiment *Experiment, audience *Audience, variableName string, userID string) (*Value, error) {

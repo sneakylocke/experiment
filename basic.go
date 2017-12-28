@@ -1,10 +1,9 @@
-package builders
+package experiment
 
 import (
 	"github.com/juju/errors"
 	"github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
-	e "github.com/sneakylocke/experiment"
 )
 
 const (
@@ -12,14 +11,14 @@ const (
 )
 
 type BasicBuilder interface {
-	Build() (*e.Experiment, error)
+	Build() (*Experiment, error)
 	AddFloat(variableName string, weights []uint32, values []float64) error
 	AddInt(variableName string, weights []uint32, values []int64) error
 	AddBool(variableName string, weights []uint32, values []bool) error
 }
 
 type factorialBuilder struct {
-	Audience         *e.Audience
+	Audience         *Audience
 	ExperimentName   string
 	MaximumVariables int
 	IsFactorial      bool
@@ -28,7 +27,7 @@ type factorialBuilder struct {
 
 func NewSimpleBuilder(experimentName string) BasicBuilder {
 	b := &factorialBuilder{}
-	b.Audience = e.NewAudience()
+	b.Audience = NewAudience()
 	b.ExperimentName = experimentName
 	b.MaximumVariables = 1
 	b.IsFactorial = false
@@ -38,7 +37,7 @@ func NewSimpleBuilder(experimentName string) BasicBuilder {
 
 func NewFactorialBuilder(experimentName string) BasicBuilder {
 	b := &factorialBuilder{}
-	b.Audience = e.NewAudience()
+	b.Audience = NewAudience()
 	b.ExperimentName = experimentName
 	b.MaximumVariables = maximumVariables
 	b.IsFactorial = true
@@ -48,7 +47,7 @@ func NewFactorialBuilder(experimentName string) BasicBuilder {
 
 func NewAlignedlBuilder(experimentName string) BasicBuilder {
 	b := &factorialBuilder{}
-	b.Audience = e.NewAudience()
+	b.Audience = NewAudience()
 	b.ExperimentName = experimentName
 	b.MaximumVariables = maximumVariables
 	b.IsFactorial = false
@@ -61,7 +60,7 @@ func (b *factorialBuilder) AddFloat(variableName string, weights []uint32, value
 		return errors.Annotate(err, "could not add floats")
 	}
 
-	b.setupAudience(e.NewFloatValueGroup(variableName, weights, values), variableName)
+	b.setupAudience(NewFloatValueGroup(variableName, weights, values), variableName)
 
 	return nil
 }
@@ -71,7 +70,7 @@ func (b *factorialBuilder) AddInt(variableName string, weights []uint32, values 
 		return errors.Annotate(err, "could not add ints")
 	}
 
-	b.setupAudience(e.NewIntValueGroup(variableName, weights, values), variableName)
+	b.setupAudience(NewIntValueGroup(variableName, weights, values), variableName)
 
 	return nil
 }
@@ -81,13 +80,13 @@ func (b *factorialBuilder) AddBool(variableName string, weights []uint32, values
 		return errors.Annotate(err, "could not add bools")
 	}
 
-	b.setupAudience(e.NewBoolValueGroup(variableName, weights, values), variableName)
+	b.setupAudience(NewBoolValueGroup(variableName, weights, values), variableName)
 
 	return nil
 }
 
-func (b *factorialBuilder) Build() (*e.Experiment, error) {
-	experiment := &e.Experiment{}
+func (b *factorialBuilder) Build() (*Experiment, error) {
+	experiment := &Experiment{}
 
 	// Setup the simpler aspects of the experiment
 	experiment.Name = b.ExperimentName
@@ -96,7 +95,7 @@ func (b *factorialBuilder) Build() (*e.Experiment, error) {
 	experiment.Enabled = true
 
 	// Add audience
-	experiment.Audiences = []e.Audience{*b.Audience}
+	experiment.Audiences = []Audience{*b.Audience}
 
 	// Calculate all available variable names
 	for _, valueGroup := range b.Audience.ValueGroups {
@@ -118,7 +117,7 @@ func (b *factorialBuilder) Build() (*e.Experiment, error) {
 	return experiment, nil
 }
 
-func (b *factorialBuilder) setupAudience(valueGroup *e.ValueGroup, variableName string) {
+func (b *factorialBuilder) setupAudience(valueGroup *ValueGroup, variableName string) {
 	// Set control value to first element
 	valueGroup.ControlValue = valueGroup.WeightedValues[0].Value
 

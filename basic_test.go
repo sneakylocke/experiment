@@ -1,8 +1,7 @@
-package builders
+package experiment
 
 import (
 	"fmt"
-	e "github.com/sneakylocke/experiment"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -50,8 +49,8 @@ func testSimpleGetVariable(t *testing.T, config basicTestConfig) {
 	assert.Nil(t, eErr2)
 
 	// Load the experiment service
-	service := e.NewExperimentService()
-	service.Reload([]e.Experiment{*experiment1, *experiment2})
+	service := NewExperimentService()
+	service.Reload([]Experiment{*experiment1, *experiment2})
 
 	// We should find 'variable_1' and it should be associated with 'experiment_1'
 	result1, err1 := service.GetVariable("variable_1", userID, nil)
@@ -116,8 +115,8 @@ func TestSimpleFullyDistributed(t *testing.T) {
 	experiment, _ := builder.Build()
 
 	// Load the experiment service
-	service := e.NewExperimentService()
-	service.Reload([]e.Experiment{*experiment})
+	service := NewExperimentService()
+	service.Reload([]Experiment{*experiment})
 
 	// Create map for counting values
 	valueMap := make(map[float64]int)
@@ -154,8 +153,8 @@ func TestSimpleNoWeights(t *testing.T) {
 	assert.Nil(t, valid1)
 
 	// Load the experiment service
-	service := e.NewExperimentService()
-	service.Reload([]e.Experiment{*experiment1})
+	service := NewExperimentService()
+	service.Reload([]Experiment{*experiment1})
 
 	// Check variable_1. Should be control
 	result, err1 := service.GetVariable("variable_1", userID, nil)

@@ -12,18 +12,16 @@ const (
 )
 
 func TestNoWeights(t *testing.T) {
-
-	// User info
 	userID := "some_user_id"
 
-	builder := NewOneVariableBasicBuilder("experiment_1")
+	builder := NewSimpleBuilder("experiment_1")
 	builder.AddFloat("variable_1", []uint32{0, 0, 0}, []float64{1.0, 2.0, 3.0})
 	experiment1, _ := builder.Build()
 
 	// Assert that the created experiments are valid
-	valid1, _ := experiment1.Validate()
+	valid1 := experiment1.Validate()
 
-	assert.True(t, valid1)
+	assert.Nil(t, valid1)
 
 	// Load the experiment service
 	service := e.NewExperimentService()
@@ -38,21 +36,21 @@ func TestNoWeights(t *testing.T) {
 }
 
 func TestFail(t *testing.T) {
-	builder1 := NewOneVariableBasicBuilder("experiment_1")
+	builder1 := NewSimpleBuilder("experiment_1")
 	builder1.AddFloat("variable_1", []uint32{1}, []float64{1.0, 2.0, 3.0})
 	experiment1, err1 := builder1.Build()
 
 	assert.Nil(t, experiment1)
 	assert.NotNil(t, err1)
 
-	builder2 := NewOneVariableBasicBuilder("experiment_1")
+	builder2 := NewSimpleBuilder("experiment_1")
 	builder2.AddInt("variable_1", []uint32{}, []int64{1, 2, 3})
 	experiment2, err2 := builder2.Build()
 
 	assert.Nil(t, experiment2)
 	assert.NotNil(t, err2)
 
-	builder3 := NewOneVariableBasicBuilder("experiment_1")
+	builder3 := NewSimpleBuilder("experiment_1")
 	builder3.AddBool("variable_1", []uint32{1, 1, 1}, []bool{false, true})
 	experiment3, err3 := builder3.Build()
 
@@ -65,12 +63,12 @@ func TestGetFloatVariable(t *testing.T) {
 	userID := "some_user_id"
 
 	// Simple experiment 1, evenly distributed
-	builder1 := NewOneVariableBasicBuilder("experiment_1")
+	builder1 := NewSimpleBuilder("experiment_1")
 	builder1.AddFloat("variable_1", []uint32{1, 1, 1}, []float64{1.0, 2.0, 3.0})
 	experiment1, eErr1 := builder1.Build()
 
 	// Simple experiment 2, forces the value of 6
-	builder2 := NewOneVariableBasicBuilder("experiment_2")
+	builder2 := NewSimpleBuilder("experiment_2")
 	builder2.AddFloat("variable_2", []uint32{0, 0, 1}, []float64{4.0, 5.0, 6.0})
 	experiment2, eErr2 := builder2.Build()
 
@@ -105,12 +103,12 @@ func TestGetBoolVariable(t *testing.T) {
 	userID := "some_user_id"
 
 	// Simple experiment 1, evenly distributed
-	builder1 := NewOneVariableBasicBuilder("experiment_1")
+	builder1 := NewSimpleBuilder("experiment_1")
 	builder1.AddBool("variable_1", []uint32{1, 1}, []bool{true, false})
 	experiment1, eErr1 := builder1.Build()
 
 	// Simple experiment 2, forces the value of false
-	builder2 := NewOneVariableBasicBuilder("experiment_2")
+	builder2 := NewSimpleBuilder("experiment_2")
 	builder2.AddBool("variable_2", []uint32{0, 1}, []bool{true, false})
 	experiment2, eErr2 := builder2.Build()
 
@@ -145,12 +143,12 @@ func TestGetIntVariable(t *testing.T) {
 	userID := "some_user_id"
 
 	// Simple experiment 1, evenly distributed
-	builder1 := NewOneVariableBasicBuilder("experiment_1")
+	builder1 := NewSimpleBuilder("experiment_1")
 	builder1.AddInt("variable_1", []uint32{1, 1, 1}, []int64{1, 2, 3})
 	experiment1, eErr1 := builder1.Build()
 
 	// Simple experiment 2, forces the value of 6
-	builder2 := NewOneVariableBasicBuilder("experiment_2")
+	builder2 := NewSimpleBuilder("experiment_2")
 	builder2.AddInt("variable_2", []uint32{0, 0, 1}, []int64{4, 5, 6})
 	experiment2, eErr2 := builder2.Build()
 
@@ -184,7 +182,7 @@ func TestGetVariableDistribution(t *testing.T) {
 	floatValues := []float64{1.0, 2.0, 3.0}
 
 	// Simple experiment 1, evenly distributed
-	builder := NewOneVariableBasicBuilder("experiment_1")
+	builder := NewSimpleBuilder("experiment_1")
 	builder.AddFloat("variable_1", []uint32{1, 1, 1}, floatValues)
 	experiment, _ := builder.Build()
 

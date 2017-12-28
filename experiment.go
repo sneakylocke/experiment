@@ -18,30 +18,30 @@ type WeightedValue struct {
 type Constraint struct {
 }
 
-func (e *Experiment) Validate() (bool, error) {
+func (e *Experiment) Validate() error {
 	if e.Name == "" {
-		return false, errors.New("no name")
+		return errors.New("no name")
 	}
 
 	if e.Salt == "" {
-		return false, errors.New("no salt")
+		return errors.New("no salt")
 	}
 
 	if e.VariableNames == nil || len(e.VariableNames) == 0 {
-		return false, errors.New("no variable names")
+		return errors.New("no variable names")
 	}
 
 	if e.Audiences == nil || len(e.Audiences) == 0 {
-		return false, errors.New("no audiences names")
+		return errors.New("no audiences names")
 	}
 
 	for _, audience := range e.Audiences {
 		audienceValid, audienceErr := audience.validate()
 
 		if !audienceValid {
-			return false, errors.Annotate(audienceErr, "invalid audience")
+			return errors.Annotate(audienceErr, "invalid audience")
 		}
 	}
 
-	return true, nil
+	return nil
 }

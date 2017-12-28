@@ -17,7 +17,7 @@ type BasicBuilder interface {
 	AddBool(variableName string, weights []uint32, values []bool) error
 }
 
-type factorialBuilder struct {
+type basicBuilder struct {
 	Audience         *Audience
 	ExperimentName   string
 	MaximumVariables int
@@ -26,7 +26,7 @@ type factorialBuilder struct {
 }
 
 func NewSimpleBuilder(experimentName string) BasicBuilder {
-	b := &factorialBuilder{}
+	b := &basicBuilder{}
 	b.Audience = NewAudience()
 	b.ExperimentName = experimentName
 	b.MaximumVariables = 1
@@ -36,7 +36,7 @@ func NewSimpleBuilder(experimentName string) BasicBuilder {
 }
 
 func NewFactorialBuilder(experimentName string) BasicBuilder {
-	b := &factorialBuilder{}
+	b := &basicBuilder{}
 	b.Audience = NewAudience()
 	b.ExperimentName = experimentName
 	b.MaximumVariables = maximumVariables
@@ -45,8 +45,8 @@ func NewFactorialBuilder(experimentName string) BasicBuilder {
 	return b
 }
 
-func NewAlignedlBuilder(experimentName string) BasicBuilder {
-	b := &factorialBuilder{}
+func NewAlignedBuilder(experimentName string) BasicBuilder {
+	b := &basicBuilder{}
 	b.Audience = NewAudience()
 	b.ExperimentName = experimentName
 	b.MaximumVariables = maximumVariables
@@ -55,7 +55,7 @@ func NewAlignedlBuilder(experimentName string) BasicBuilder {
 	return b
 }
 
-func (b *factorialBuilder) AddFloat(variableName string, weights []uint32, values []float64) error {
+func (b *basicBuilder) AddFloat(variableName string, weights []uint32, values []float64) error {
 	if err := b.prevalidate(variableName, len(weights), len(values)); err != nil {
 		return errors.Annotate(err, "could not add floats")
 	}
@@ -65,7 +65,7 @@ func (b *factorialBuilder) AddFloat(variableName string, weights []uint32, value
 	return nil
 }
 
-func (b *factorialBuilder) AddInt(variableName string, weights []uint32, values []int64) error {
+func (b *basicBuilder) AddInt(variableName string, weights []uint32, values []int64) error {
 	if err := b.prevalidate(variableName, len(weights), len(values)); err != nil {
 		return errors.Annotate(err, "could not add ints")
 	}
@@ -75,7 +75,7 @@ func (b *factorialBuilder) AddInt(variableName string, weights []uint32, values 
 	return nil
 }
 
-func (b *factorialBuilder) AddBool(variableName string, weights []uint32, values []bool) error {
+func (b *basicBuilder) AddBool(variableName string, weights []uint32, values []bool) error {
 	if err := b.prevalidate(variableName, len(weights), len(values)); err != nil {
 		return errors.Annotate(err, "could not add bools")
 	}
@@ -85,7 +85,7 @@ func (b *factorialBuilder) AddBool(variableName string, weights []uint32, values
 	return nil
 }
 
-func (b *factorialBuilder) Build() (*Experiment, error) {
+func (b *basicBuilder) Build() (*Experiment, error) {
 	experiment := &Experiment{}
 
 	// Setup the simpler aspects of the experiment
@@ -117,7 +117,7 @@ func (b *factorialBuilder) Build() (*Experiment, error) {
 	return experiment, nil
 }
 
-func (b *factorialBuilder) setupAudience(valueGroup *ValueGroup, variableName string) {
+func (b *basicBuilder) setupAudience(valueGroup *ValueGroup, variableName string) {
 	// Set control value to first element
 	valueGroup.ControlValue = valueGroup.WeightedValues[0].Value
 
@@ -125,7 +125,7 @@ func (b *factorialBuilder) setupAudience(valueGroup *ValueGroup, variableName st
 	b.Audience.ValueGroups[variableName] = *valueGroup
 }
 
-func (b *factorialBuilder) prevalidate(variableName string, numberWeights int, numberValues int) error {
+func (b *basicBuilder) prevalidate(variableName string, numberWeights int, numberValues int) error {
 	// How many variables will there be if we add this variable
 	numberVariables := len(b.Audience.ValueGroups) + 1
 

@@ -14,7 +14,7 @@ build:
 	$(GOBUILD) -v
 
 test:
-	$(GOTEST) ./... -v
+	$(GOTEST) ./... -cover
 
 clean: 
 	$(GOCLEAN)

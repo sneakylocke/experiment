@@ -5,7 +5,7 @@ import "github.com/juju/errors"
 type Audience struct {
 	Name        string
 	Constraints []Constraint
-	ValueGroups map[string]ValueGroup
+	ValueGroups map[string]*ValueGroup
 	Exposure    float64
 	Enabled     bool
 }
@@ -15,7 +15,7 @@ func NewAudience() *Audience {
 
 	audience.Name = ""
 	audience.Constraints = make([]Constraint, 1)
-	audience.ValueGroups = make(map[string]ValueGroup)
+	audience.ValueGroups = make(map[string]*ValueGroup)
 	audience.Exposure = 1.0
 	audience.Enabled = true
 

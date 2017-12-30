@@ -82,6 +82,106 @@ func testSimpleGetVariable(t *testing.T, config basicTestConfig) {
 	assert.NotNil(t, err3)
 }
 
+func TestFactorial(t *testing.T) {
+	// Create a factorial experiment with two int variables
+	ints1 := []int64{2, 3, 5}
+	ints2 := []int64{7, 11}
+
+	builder := NewFactorialBuilder("experiment_1")
+	builder.AddInt("int_1", []uint32{1, 1, 1}, ints1)
+	builder.AddInt("int_2", []uint32{1, 1}, ints2)
+	experiment, err := builder.Build()
+
+	// This should be a valid experiment
+	assert.Nil(t, err, "experiment should be built")
+
+	// Prepare the service
+	service := NewExperimentService()
+	service.Reload([]Experiment{*experiment})
+
+	countMap := make(map[int64]int)
+	for i := 0; i < maxIterations; i++ {
+		uuid := makeUserID(i)
+		result1, err1 := service.GetVariable("int_1", uuid, nil)
+		result2, err2 := service.GetVariable("int_2", uuid, nil)
+
+		assert.Nil(t, err1, "int_1 variable should exist")
+		assert.Nil(t, err2, "int_2 variable should exist")
+
+		intValue1 := result1.Value.IntValue
+		intValue2 := result2.Value.IntValue
+
+		combination := intValue1 * intValue2
+
+		if _, ok := countMap[combination]; !ok {
+			countMap[combination] = 0
+		}
+
+		countMap[combination]++
+	}
+
+	assert.Equal(t, len(countMap), len(ints1)*len(ints2))
+}
+
+func TestNewAlignedBuilderFail(t *testing.T) {
+	// Create a factorial experiment with two int variables
+	ints1 := []int64{2, 3, 5}
+	ints2 := []int64{7, 11}
+
+	builder := NewAlignedBuilder("experiment_1")
+	err1 := builder.AddInt("int_1", []uint32{1, 1, 1}, ints1)
+	err2 := builder.AddInt("int_2", []uint32{1, 1}, ints2)
+
+	_, err := builder.Build()
+
+	assert.Nil(t, err1)
+	assert.NotNil(t, err2)
+	assert.Nil(t, err)
+}
+
+func TestNewAlignedBuilderSuccess(t *testing.T) {
+	// Create a factorial experiment with two int variables
+	ints1 := []int64{1, 2, 3}
+	ints2 := []int64{1, 2, 3}
+
+	builder := NewAlignedBuilder("experiment_1")
+	builder.AddInt("int_1", []uint32{10, 1, 1}, ints1)
+	builder.AddInt("int_2", []uint32{10, 1, 1}, ints2)
+	experiment, err := builder.Build()
+
+	// This should be a valid experiment
+	assert.Nil(t, err, "experiment should built because they are aligned")
+
+	// Prepare the service
+	service := NewExperimentService()
+	service.Reload([]Experiment{*experiment})
+
+	countMap := make(map[int64]int)
+	for i := 0; i < maxIterations; i++ {
+		uuid := makeUserID(i)
+		result1, err1 := service.GetVariable("int_1", uuid, nil)
+		result2, err2 := service.GetVariable("int_2", uuid, nil)
+
+		assert.Nil(t, err1, "int_1 variable should exist")
+		assert.Nil(t, err2, "int_2 variable should exist")
+
+		intValue1 := result1.Value.IntValue
+		intValue2 := result2.Value.IntValue
+
+		combination := intValue1 * intValue2
+
+		if _, ok := countMap[combination]; !ok {
+			countMap[combination] = 0
+		}
+
+		assert.Equal(t, intValue1, intValue2)
+
+		countMap[combination]++
+	}
+
+	assert.Equal(t, len(countMap), len(ints1))
+}
+
 func TestSimpleFloats(t *testing.T) {
 	config := basicTestConfig{}
 	config.variableType = Float

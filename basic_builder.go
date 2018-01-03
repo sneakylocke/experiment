@@ -2,7 +2,6 @@ package experiment
 
 import (
 	"github.com/juju/errors"
-	"github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -110,9 +109,8 @@ func (b *basicBuilder) Build() (*Experiment, error) {
 	// Do extra preparations for an aligned experiment
 	if !b.IsFactorial {
 		// Aligned experiments need the value group salt to be the same
-		salt := uuid.NewV4().String()
 		for _, valueGroup := range b.Audience.ValueGroups {
-			valueGroup.Salt = salt
+			valueGroup.Salt = experiment.Salt
 		}
 	}
 

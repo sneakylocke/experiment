@@ -80,6 +80,31 @@ func testSimpleGetVariable(t *testing.T, config basicTestConfig) {
 	assert.Nil(t, result.Audience)
 	assert.Nil(t, result.Value)
 	assert.NotNil(t, err3)
+
+	// Make sure experiments that are reloaded have the same randomization
+	testReload(t, builder1, "variable_1")
+}
+
+func testReload(t *testing.T, builder BasicBuilder, variableName string) {
+
+	var firstValue *Value = nil
+
+	// Repeatedly reload the service with the same experiment. The random value should be the same each time
+	for i := 0; i < maxIterations; i++ {
+		experiment, _ := builder.Build()
+		service := NewExperimentService()
+		service.Reload([]Experiment{*experiment})
+
+		result, _ := service.GetVariable(variableName, "", nil)
+
+		if firstValue == nil {
+			firstValue = result.Value
+		} else {
+			assert.Equal(t, firstValue.IntValue, result.Value.IntValue)
+			assert.Equal(t, firstValue.FloatValue, result.Value.FloatValue)
+			assert.Equal(t, firstValue.BoolValue, result.Value.BoolValue)
+		}
+	}
 }
 
 func TestFactorial(t *testing.T) {
@@ -99,6 +124,7 @@ func TestFactorial(t *testing.T) {
 	service := NewExperimentService()
 	service.Reload([]Experiment{*experiment})
 
+	// Count how each value shows up
 	countMap := make(map[int64]int)
 	for i := 0; i < maxIterations; i++ {
 		uuid := makeUserID(i)
@@ -121,6 +147,9 @@ func TestFactorial(t *testing.T) {
 	}
 
 	assert.Equal(t, len(countMap), len(ints1)*len(ints2))
+
+	// Make sure experiments that are reloaded have the same randomization
+	testReload(t, builder, "int_1")
 }
 
 func TestNewAlignedBuilderFail(t *testing.T) {
@@ -180,6 +209,9 @@ func TestNewAlignedBuilderSuccess(t *testing.T) {
 	}
 
 	assert.Equal(t, len(countMap), len(ints1))
+
+	// Make sure experiments that are reloaded have the same randomization
+	testReload(t, builder, "int_1")
 }
 
 func TestSimpleFloats(t *testing.T) {

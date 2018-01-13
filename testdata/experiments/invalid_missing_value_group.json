@@ -1,0 +1,14 @@
+{"name": "experiment",
+  "variableNames": ["a", "b"],
+  "audiences":[
+    {
+      "name":"name",
+      "constraints":[],
+      "valueGroups":{},
+      "exposure":1,
+      "enabled":true
+    }
+  ],
+  "salt":"salt",
+  "enabled":true
+}

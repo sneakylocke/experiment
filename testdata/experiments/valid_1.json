@@ -1,0 +1,27 @@
+{"name": "ok_experiment",
+  "variableNames": ["a", "b"],
+  "audiences":[
+    {
+      "name":"name",
+      "constraints":[],
+      "valueGroups":{
+        "a": {
+          "name":"a",
+          "salt":"some_salt",
+          "controlValue":{},
+          "weightedValues":[]
+        },
+        "b": {
+          "name":"b",
+          "salt":"some_salt",
+          "controlValue":{},
+          "weightedValues":[]
+        }
+      },
+      "exposure":1,
+      "enabled":true
+    }
+  ],
+  "salt":"salt",
+  "enabled":true
+}

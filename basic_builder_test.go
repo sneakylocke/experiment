@@ -31,14 +31,14 @@ func testSimpleGetVariable(t *testing.T, config basicTestConfig) {
 
 	switch config.variableType {
 	case Float:
-		builder1.AddFloat("variable_1", weights1, config.floats)
-		builder2.AddFloat("variable_2", weights2, config.floats)
+		builder1.AddFloats("variable_1", weights1, config.floats)
+		builder2.AddFloats("variable_2", weights2, config.floats)
 	case Int:
-		builder1.AddInt("variable_1", weights1, config.ints)
-		builder2.AddInt("variable_2", weights2, config.ints)
+		builder1.AddInts("variable_1", weights1, config.ints)
+		builder2.AddInts("variable_2", weights2, config.ints)
 	case Bool:
-		builder1.AddBool("variable_1", weights1, config.bools)
-		builder2.AddBool("variable_2", weights2, config.bools)
+		builder1.AddBools("variable_1", weights1, config.bools)
+		builder2.AddBools("variable_2", weights2, config.bools)
 	}
 
 	experiment1, eErr1 := builder1.Build()
@@ -113,8 +113,8 @@ func TestFactorial(t *testing.T) {
 	ints2 := []int64{7, 11}
 
 	builder := NewFactorialBuilder("experiment_1")
-	builder.AddInt("int_1", []uint32{1, 1, 1}, ints1)
-	builder.AddInt("int_2", []uint32{1, 1}, ints2)
+	builder.AddInts("int_1", []uint32{1, 1, 1}, ints1)
+	builder.AddInts("int_2", []uint32{1, 1}, ints2)
 	experiment, err := builder.Build()
 
 	// This should be a valid experiment
@@ -158,8 +158,8 @@ func TestNewAlignedBuilderFail(t *testing.T) {
 	ints2 := []int64{7, 11}
 
 	builder := NewAlignedBuilder("experiment_1")
-	err1 := builder.AddInt("int_1", []uint32{1, 1, 1}, ints1)
-	err2 := builder.AddInt("int_2", []uint32{1, 1}, ints2)
+	err1 := builder.AddInts("int_1", []uint32{1, 1, 1}, ints1)
+	err2 := builder.AddInts("int_2", []uint32{1, 1}, ints2)
 
 	_, err := builder.Build()
 
@@ -174,8 +174,8 @@ func TestNewAlignedBuilderSuccess(t *testing.T) {
 	ints2 := []int64{1, 2, 3}
 
 	builder := NewAlignedBuilder("experiment_1")
-	builder.AddInt("int_1", []uint32{10, 1, 1}, ints1)
-	builder.AddInt("int_2", []uint32{10, 1, 1}, ints2)
+	builder.AddInts("int_1", []uint32{10, 1, 1}, ints1)
+	builder.AddInts("int_2", []uint32{10, 1, 1}, ints2)
 	experiment, err := builder.Build()
 
 	// This should be a valid experiment
@@ -243,7 +243,7 @@ func TestSimpleFullyDistributed(t *testing.T) {
 
 	// Simple experiment 1, evenly distributed
 	builder := NewSimpleBuilder("experiment_1")
-	builder.AddFloat("variable_1", []uint32{1, 1, 1}, floatValues)
+	builder.AddFloats("variable_1", []uint32{1, 1, 1}, floatValues)
 	experiment, _ := builder.Build()
 
 	// Load the experiment service
@@ -276,7 +276,7 @@ func TestSimpleNoWeights(t *testing.T) {
 	userID := "some_user_id"
 
 	builder := NewSimpleBuilder("experiment_1")
-	builder.AddFloat("variable_1", []uint32{0, 0, 0}, []float64{1.0, 2.0, 3.0})
+	builder.AddFloats("variable_1", []uint32{0, 0, 0}, []float64{1.0, 2.0, 3.0})
 	experiment1, _ := builder.Build()
 
 	// Assert that the created experiments are valid
@@ -297,21 +297,21 @@ func TestSimpleNoWeights(t *testing.T) {
 
 func TestSimpleFail(t *testing.T) {
 	builder1 := NewSimpleBuilder("experiment_1")
-	builder1.AddFloat("variable_1", []uint32{1}, []float64{1.0, 2.0, 3.0})
+	builder1.AddFloats("variable_1", []uint32{1}, []float64{1.0, 2.0, 3.0})
 	experiment1, err1 := builder1.Build()
 
 	assert.Nil(t, experiment1)
 	assert.NotNil(t, err1)
 
 	builder2 := NewSimpleBuilder("experiment_1")
-	builder2.AddInt("variable_1", []uint32{}, []int64{1, 2, 3})
+	builder2.AddInts("variable_1", []uint32{}, []int64{1, 2, 3})
 	experiment2, err2 := builder2.Build()
 
 	assert.Nil(t, experiment2)
 	assert.NotNil(t, err2)
 
 	builder3 := NewSimpleBuilder("experiment_1")
-	builder3.AddBool("variable_1", []uint32{1, 1, 1}, []bool{false, true})
+	builder3.AddBools("variable_1", []uint32{1, 1, 1}, []bool{false, true})
 	experiment3, err3 := builder3.Build()
 
 	assert.Nil(t, experiment3)

@@ -1,10 +1,9 @@
 package experiment
 
 type Value struct {
-	FloatValue     float64
-	IntValue       int64
-	BoolValue      bool
-	ArbitraryValue interface{}
+	FloatValue float64 `json:"float"`
+	IntValue   int64   `json:"int"`
+	BoolValue  bool    `json:"bool"`
 }
 
 func NewFloatValue(v float64) *Value {
@@ -22,11 +21,5 @@ func NewIntValue(v int64) *Value {
 func NewBoolValue(v bool) *Value {
 	value := &Value{}
 	value.BoolValue = v
-	return value
-}
-
-func NewArbitraryValue(v interface{}) *Value {
-	value := &Value{}
-	value.ArbitraryValue = v
 	return value
 }

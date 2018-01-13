@@ -1,10 +1,10 @@
 package experiment
 
 type ValueGroup struct {
-	Name           string
-	Salt           string
-	ControlValue   Value
-	WeightedValues []WeightedValue
+	Name           string          `json:"name"`
+	Salt           string          `json:"salt"`
+	ControlValue   Value           `json:"controlValue"`
+	WeightedValues []WeightedValue `json:"weightedValues"`
 }
 
 func NewFloatValueGroup(name string, weights []uint32, values []float64) *ValueGroup {
@@ -32,16 +32,6 @@ func NewBoolValueGroup(name string, weights []uint32, values []bool) *ValueGroup
 
 	for i := range valueGroup.WeightedValues {
 		valueGroup.WeightedValues[i].Value = *NewBoolValue(values[i])
-	}
-
-	return valueGroup
-}
-
-func NewArbitraryValueGroup(name string, weights []uint32, values []interface{}) *ValueGroup {
-	valueGroup := newValueGroup(name, weights)
-
-	for i := range valueGroup.WeightedValues {
-		valueGroup.WeightedValues[i].Value = *NewArbitraryValue(values[i])
 	}
 
 	return valueGroup

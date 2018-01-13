@@ -1,0 +1,6 @@
+{"name": "experiment",
+"variableNames": ["a", "b"],
+"audiences":[],
+  "salt":"salt",
+  "enabled":true
+}

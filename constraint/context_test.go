@@ -42,6 +42,44 @@ func TestInt64(t *testing.T) {
 	testOperators(t, NewMapContext(context))
 }
 
+func TestStrings(t *testing.T) {
+	context := make(map[string]interface{})
+	context["key"] = "cucumbers"
+	mapContext := NewMapContext(context)
+
+	resolver := resolver{}
+
+	// EQ
+	constraintEQ := NewConstraint(OPERATOR_EQ, "cucumbers")
+	okEQ, errEQ := resolver.resolve("key", constraintEQ, mapContext)
+	assert.Nil(t, errEQ)
+	assert.True(t, okEQ)
+
+	// NOT EQ
+	constraintNEQ := NewConstraint(OPERATOR_NOT_EQ, "apples")
+	okNEQ, errNEQ := resolver.resolve("key", constraintNEQ, mapContext)
+	assert.Nil(t, errNEQ)
+	assert.True(t, okNEQ)
+
+	// CONTAINS
+	constraintContains := NewConstraint(OPERATOR_CONTAINS, []string{"apples", "bananas", "cucumbers"})
+	okContains, errContains := resolver.resolve("key", constraintContains, mapContext)
+	assert.Nil(t, errContains)
+	assert.True(t, okContains)
+
+	// NOT CONTAINS
+	constraintNotContains := NewConstraint(OPERATOR_NOT_CONTAINS, []string{"apples", "bananas", "berries"})
+	okNotContains, errNotContains := resolver.resolve("key", constraintNotContains, mapContext)
+	assert.Nil(t, errNotContains)
+	assert.True(t, okNotContains)
+
+	// NOT CONTAINS ERROR
+	constraintNotContains2 := NewConstraint(OPERATOR_NOT_CONTAINS, []int{1, 2, 3, 4})
+	okNotContains2, errNotContains2 := resolver.resolve("key", constraintNotContains2, mapContext)
+	assert.NotNil(t, errNotContains2)
+	assert.False(t, okNotContains2)
+}
+
 func testOperators(t *testing.T, context Context) {
 	resolver := resolver{}
 

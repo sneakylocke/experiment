@@ -17,13 +17,18 @@ const (
 	OPERATOR_NOT_CONTAINS
 )
 
-func comparableOperator(operator OPERATOR) bool {
+func numericComparableOperator(operator OPERATOR) bool {
 	return operator == OPERATOR_EQ ||
 		operator == OPERATOR_NOT_EQ ||
 		operator == OPERATOR_GT ||
 		operator == OPERATOR_GTE ||
 		operator == OPERATOR_LT ||
 		operator == OPERATOR_LTE
+}
+
+func stringComparableOperator(operator OPERATOR) bool {
+	return operator == OPERATOR_EQ ||
+		operator == OPERATOR_NOT_EQ
 }
 
 func setOperator(operator OPERATOR) bool {
@@ -115,7 +120,7 @@ func (r *resolver) resolveFloat64(constraint *Constraint, value float64) (bool, 
 		return false, errors.Annotatef(forceError, "could not compare %f with %+v", value, constraint.value)
 	}
 
-	if comparableOperator(constraint.operator) {
+	if numericComparableOperator(constraint.operator) {
 		return r.compareFloat64(constraint.operator, value, floatValue)
 	}
 
@@ -128,11 +133,34 @@ func (r *resolver) resolveInt64(constraint *Constraint, value int64) (bool, erro
 		return false, errors.Annotatef(forceError, "could not compare %f with %+v", value, constraint.value)
 	}
 
-	if comparableOperator(constraint.operator) {
+	if numericComparableOperator(constraint.operator) {
 		return r.compareInt64(constraint.operator, value, intValue)
 	}
 
 	return false, errors.Errorf("could not compare %f with %+v", value, constraint.value)
+}
+
+func (r *resolver) resolveString(constraint *Constraint, value string) (bool, error) {
+	// Attempt direct string comparison first
+	stringValue, stringOk := constraint.value.(string)
+	if stringOk && stringComparableOperator(constraint.operator) {
+		switch constraint.operator {
+		case OPERATOR_EQ:
+			return value == stringValue, nil
+		case OPERATOR_NOT_EQ:
+			return value != stringValue, nil
+		default:
+			return false, errors.Errorf("Could not compare strings with operator: %d", constraint.operator)
+		}
+	}
+
+	// Attempt set comparison (contains, not contains)
+	strings, stringsOk := constraint.value.([]string)
+	if stringsOk && setOperator(constraint.operator) {
+		return r.arrayCompareString(constraint.operator, value, strings)
+	}
+
+	return false, errors.Errorf("could not compare input %s with constraint %+v", value, constraint.value)
 }
 
 func (r *resolver) compareFloat64(operator OPERATOR, left float64, right float64) (bool, error) {
@@ -190,11 +218,6 @@ func (r *resolver) arrayCompareString(operator OPERATOR, value string, values []
 	default:
 		return false, errors.Errorf("operator not available for comparison: %d", operator)
 	}
-}
-
-func (r *resolver) resolveString(constraint *Constraint, value string) (bool, error) {
-	println("Resolve string")
-	return true, nil
 }
 
 func (r *resolver) forceFloat64(value interface{}) (float64, error) {

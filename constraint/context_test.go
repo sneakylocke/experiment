@@ -80,6 +80,19 @@ func TestStrings(t *testing.T) {
 	assert.False(t, okNotContains2)
 }
 
+func TestNoKey(t *testing.T) {
+	context := make(map[string]interface{})
+	context["key"] = "cucumbers"
+	mapContext := NewMapContext(context)
+
+	resolver := resolver{}
+
+	constraintEQ := NewConstraint(OPERATOR_EQ, "cucumbers")
+	okEQ, errEQ := resolver.resolve("wrong_key", constraintEQ, mapContext)
+	assert.NotNil(t, errEQ)
+	assert.False(t, okEQ)
+}
+
 func testOperators(t *testing.T, context Context) {
 	resolver := resolver{}
 

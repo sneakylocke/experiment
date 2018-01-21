@@ -76,9 +76,7 @@ func testSimpleGetVariable(t *testing.T, config basicTestConfig) {
 	}
 	// A fake variable should return an error and nils for the result
 	result, err3 := service.GetVariable("fake_variable", userID, nil)
-	assert.Nil(t, result.Experiment)
-	assert.Nil(t, result.Audience)
-	assert.Nil(t, result.Value)
+	assert.Nil(t, result)
 	assert.NotNil(t, err3)
 
 	// Make sure experiments that are reloaded have the same randomization

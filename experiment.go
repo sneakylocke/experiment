@@ -15,9 +15,6 @@ type WeightedValue struct {
 	Weight uint32 `json:"weight"`
 }
 
-type Constraint struct {
-}
-
 func (e *Experiment) Validate() error {
 	if e.Name == "" {
 		return errors.New("no name")

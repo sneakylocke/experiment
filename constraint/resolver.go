@@ -4,7 +4,7 @@ import "github.com/juju/errors"
 
 // Resolver is an interface that defines methods needed to resolve whether constraints are satisfied by some Context.
 type Resolver interface {
-	Resolve(key string, constraint *Constraint, context Context) (bool, error)
+	Resolve(constraint *Constraint, context Context) (bool, error)
 }
 
 // NewDefaultResolver returns a basic implementation of a Resolver
@@ -17,13 +17,16 @@ type resolver struct {
 }
 
 // Resolve returns true is the Constraint is satisfied via the provided Context for a given key.
-func (r *resolver) Resolve(key string, constraint *Constraint, context Context) (bool, error) {
+func (r *resolver) Resolve(constraint *Constraint, context Context) (bool, error) {
+	if context == nil {
+		return false, errors.Errorf("no context provided")
+	}
 
 	// Attempt to retrieve the value at the key
-	value, contextErr := context.value(key)
+	value, contextErr := context.value(constraint.key)
 
 	if contextErr != nil {
-		return false, errors.Annotatef(contextErr, "key not found in context: %s", key)
+		return false, errors.Annotatef(contextErr, "key not found in context: %s", constraint.key)
 	}
 
 	// Inspect the type of the value and resolve the constraint appropriately.

@@ -1,20 +1,23 @@
 package experiment
 
-import "github.com/juju/errors"
+import (
+	"github.com/juju/errors"
+	"github.com/sneakylocke/experiment/constraint"
+)
 
 type Audience struct {
-	Name        string                 `json:"name"`
-	Constraints []Constraint           `json:"constraints"`
-	ValueGroups map[string]*ValueGroup `json:"valueGroups"`
-	Exposure    float64                `json:"exposure"`
-	Enabled     bool                   `json:"enabled"`
+	Name        string                  `json:"name"`
+	Constraints []constraint.Constraint `json:"constraints"`
+	ValueGroups map[string]*ValueGroup  `json:"valueGroups"`
+	Exposure    float64                 `json:"exposure"`
+	Enabled     bool                    `json:"enabled"`
 }
 
 func NewAudience() *Audience {
 	audience := &Audience{}
 
 	audience.Name = ""
-	audience.Constraints = make([]Constraint, 1)
+	audience.Constraints = make([]constraint.Constraint, 0)
 	audience.ValueGroups = make(map[string]*ValueGroup)
 	audience.Exposure = 1.0
 	audience.Enabled = true

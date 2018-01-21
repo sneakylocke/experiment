@@ -3,6 +3,7 @@ package experiment
 import (
 	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
+	"github.com/sneakylocke/experiment/constraint"
 	"hash/fnv"
 )
 
@@ -18,18 +19,18 @@ type QueryVariableResult struct {
 
 type IExperimentService interface {
 	Reload(experiments []Experiment) error
-	QueryVariable(name string, userID string, userInfo interface{}) (QueryVariableResult, error)
+	QueryVariable(name string, userID string, context constraint.Context) (QueryVariableResult, error)
 }
 
 type experimentService struct {
-	constraintResolver ConstraintResolver
-	experiments        []Experiment
-	variableMap        map[string][]Experiment
+	resolver    constraint.Resolver
+	experiments []Experiment
+	variableMap map[string][]Experiment
 }
 
 func NewExperimentService() *experimentService {
 	service := &experimentService{}
-	service.constraintResolver = &BasicResolver{}
+	service.resolver = constraint.NewDefaultResolver()
 	service.experiments = make([]Experiment, 1)
 	service.variableMap = make(map[string][]Experiment)
 
@@ -53,11 +54,11 @@ func (service *experimentService) Reload(experiments []Experiment) error {
 	return nil
 }
 
-func (service *experimentService) GetVariable(variableName string, userID string, userInfo interface{}) (QueryVariableResult, error) {
+func (service *experimentService) GetVariable(variableName string, userID string, context constraint.Context) (*QueryVariableResult, error) {
 	experiments, experimentsOk := service.variableMap[variableName]
 
 	if !experimentsOk {
-		return QueryVariableResult{}, errors.Errorf("no experiment matching variable '%s'", variableName)
+		return nil, errors.Errorf("no experiment matching variable '%s'", variableName)
 	}
 
 	for _, experiment := range experiments {
@@ -74,19 +75,38 @@ func (service *experimentService) GetVariable(variableName string, userID string
 				continue
 			}
 
-			if service.constraintResolver.PassesConstraints(userInfo, audience.Constraints) {
+			// By default the constraints are met
+			constraintsMet := true
+
+			// If we actually have constraints for this experiment, check them
+			if audience.Constraints != nil {
+
+				// All constraints must be passed
+				for _, constraint := range audience.Constraints {
+					resolveOk, _ := service.resolver.Resolve(&constraint, context)
+
+					// TODO: Log the error. We don't want to stop evaluating so we continue
+
+					if !resolveOk {
+						constraintsMet = false
+						break
+					}
+				}
+			}
+
+			if constraintsMet {
 				value, err := service.getVariable(&experiment, &audience, variableName, userID)
 
 				if err == nil {
-					return QueryVariableResult{Experiment: &experiment, Audience: &audience, Value: value}, nil
+					return &QueryVariableResult{Experiment: &experiment, Audience: &audience, Value: value}, nil
 				} else {
-					return QueryVariableResult{}, err
+					return nil, errors.Annotatef(err, "error getting variable")
 				}
 			}
 		}
 	}
 
-	return QueryVariableResult{}, errors.New("failed to find variable")
+	return nil, errors.New("failed to find variable")
 }
 
 func (service *experimentService) getVariable(experiment *Experiment, audience *Audience, variableName string, userID string) (*Value, error) {

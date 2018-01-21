@@ -9,13 +9,13 @@
           "name":"a",
           "salt":"some_salt",
           "controlValue":{},
-          "weightedValues":[]
+          "weightedValues":[{"value": {}, "weight": 1}]
         },
         "b": {
           "name":"b",
           "salt":"some_salt",
           "controlValue":{},
-          "weightedValues":[]
+          "weightedValues":[{"value": {}, "weight": 1}]
         }
       },
       "exposure":1,

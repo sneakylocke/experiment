@@ -34,10 +34,8 @@ func (e *Experiment) Validate() error {
 
 	// Validate individual audiences
 	for _, audience := range e.Audiences {
-		audienceErr := audience.Validate()
-
-		if audienceErr != nil {
-			return errors.Annotate(audienceErr, "invalid audience")
+		if err := audience.Validate(); err != nil {
+			return errors.Annotate(err, "invalid audience")
 		}
 	}
 

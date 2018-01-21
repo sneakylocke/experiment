@@ -30,6 +30,20 @@ func (a *Audience) Validate() error {
 		return errors.Errorf("invalid exposure: %f", a.Exposure)
 	}
 
+	if len(a.ValueGroups) == 0 {
+		return errors.Errorf("audiences should have value groups")
+	}
+
+	for name, valueGroup := range a.ValueGroups {
+		if name != valueGroup.Name {
+			return errors.Errorf("value group key '%s' does not match name '%s'", name, valueGroup.Name)
+		}
+
+		if err := valueGroup.Validate(); err != nil {
+			return errors.Annotatef(err, "error validating value group")
+		}
+	}
+
 	for _, constraint := range a.Constraints {
 		if err := constraint.Validate(); err != nil {
 			return errors.Annotatef(err, "error validating audience")

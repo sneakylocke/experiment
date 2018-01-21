@@ -1,5 +1,7 @@
 package experiment
 
+import "github.com/juju/errors"
+
 type ValueGroup struct {
 	Name           string          `json:"name"`
 	Salt           string          `json:"salt"`
@@ -35,6 +37,22 @@ func NewBoolValueGroup(name string, weights []uint32, values []bool) *ValueGroup
 	}
 
 	return valueGroup
+}
+
+func (valueGroup *ValueGroup) Validate() error {
+	if valueGroup.Name == "" {
+		return errors.Errorf("value groups should have a name")
+	}
+
+	if valueGroup.Salt == "" {
+		return errors.Errorf("value groups should have a salt")
+	}
+
+	if len(valueGroup.WeightedValues) == 0 {
+		return errors.Errorf("value groups should have an array of weights")
+	}
+
+	return nil
 }
 
 func newValueGroup(name string, weights []uint32) *ValueGroup {

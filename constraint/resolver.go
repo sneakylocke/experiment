@@ -11,6 +11,7 @@ type Resolver interface {
 	resolveString(constraint Constraint, value string) (bool, error)
 }
 
+// resolver is a default implementation of Resolver
 type resolver struct {
 }
 
@@ -59,6 +60,7 @@ func (r *resolver) resolveFloat64(constraint *Constraint, value float64) (bool, 
 
 	return r.compareFloat64(constraint.operator, value, floatValue)
 }
+
 func (r *resolver) resolveInt64(constraint *Constraint, value int64) (bool, error) {
 	// Attempt to force the constraint's value to a int64 for comparison
 	intValue, forceError := r.forceInt64(constraint.value)
@@ -112,6 +114,7 @@ func (r *resolver) compareFloat64(operator OPERATOR, left float64, right float64
 		return false, errors.Errorf("operator not available for float comparison: %d", operator)
 	}
 }
+
 func (r *resolver) compareInt64(operator OPERATOR, left int64, right int64) (bool, error) {
 	switch operator {
 	case OPERATOR_EQ:
@@ -171,6 +174,7 @@ func (r *resolver) forceFloat64(value interface{}) (float64, error) {
 		return 0, errors.Errorf("could not force %+v to float64", value)
 	}
 }
+
 func (r *resolver) forceInt64(value interface{}) (int64, error) {
 	switch v := value.(type) {
 	case float64:

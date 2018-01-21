@@ -4,11 +4,12 @@ import "github.com/juju/errors"
 
 // Resolver is an interface that defines methods needed to resolve whether constraints are satisfied by some Context.
 type Resolver interface {
-	Resolve(key string, constraint Constraint, context Context) (bool, error)
+	Resolve(key string, constraint *Constraint, context Context) (bool, error)
+}
 
-	resolveFloat64(constraint Constraint, value float64) (bool, error)
-	resolveInt64(constraint Constraint, value int64) (bool, error)
-	resolveString(constraint Constraint, value string) (bool, error)
+// NewDefaultResolver returns a basic implementation of a Resolver
+func NewDefaultResolver() Resolver {
+	return &resolver{}
 }
 
 // resolver is a default implementation of Resolver

@@ -11,40 +11,40 @@ const (
 	denominator = 10000
 )
 
-type QueryVariableResult struct {
+type GetVariableResult struct {
 	Experiment *Experiment
 	Audience   *Audience
 	Value      *Value
 }
 
-type IExperimentService interface {
+type Service interface {
 	Reload(experiments []Experiment) error
-	QueryVariable(name string, userID string, context constraint.Context) (QueryVariableResult, error)
+	GetVariable(name string, userID string, context constraint.Context) (*GetVariableResult, error)
 }
 
-type experimentService struct {
+type service struct {
 	resolver    constraint.Resolver
 	experiments []Experiment
 	variableMap map[string][]Experiment
 }
 
-func NewExperimentService() *experimentService {
-	service := &experimentService{}
+func NewService() *service {
+	service := &service{}
 	service.resolver = constraint.NewDefaultResolver()
-	service.experiments = make([]Experiment, 1)
+	service.experiments = make([]Experiment, 0)
 	service.variableMap = make(map[string][]Experiment)
 
 	return service
 }
 
-func (service *experimentService) Reload(experiments []Experiment) error {
+func (service *service) Reload(experiments []Experiment) error {
 	service.experiments = experiments
 	service.variableMap = make(map[string][]Experiment)
 
 	for _, experiment := range experiments {
 		for _, variableName := range experiment.VariableNames {
 			if service.variableMap[variableName] == nil {
-				service.variableMap[variableName] = make([]Experiment, 1)
+				service.variableMap[variableName] = make([]Experiment, 0, 1)
 			}
 
 			service.variableMap[variableName] = append(service.variableMap[variableName], experiment)
@@ -54,7 +54,7 @@ func (service *experimentService) Reload(experiments []Experiment) error {
 	return nil
 }
 
-func (service *experimentService) GetVariable(variableName string, userID string, context constraint.Context) (*QueryVariableResult, error) {
+func (service *service) GetVariable(variableName string, userID string, context constraint.Context) (*GetVariableResult, error) {
 	experiments, experimentsOk := service.variableMap[variableName]
 
 	if !experimentsOk {
@@ -94,11 +94,12 @@ func (service *experimentService) GetVariable(variableName string, userID string
 				}
 			}
 
+			// If constraints are met extract the value
 			if constraintsMet {
 				value, err := service.getVariable(&experiment, &audience, variableName, userID)
 
 				if err == nil {
-					return &QueryVariableResult{Experiment: &experiment, Audience: &audience, Value: value}, nil
+					return &GetVariableResult{Experiment: &experiment, Audience: &audience, Value: value}, nil
 				} else {
 					return nil, errors.Annotatef(err, "error getting variable")
 				}
@@ -109,7 +110,7 @@ func (service *experimentService) GetVariable(variableName string, userID string
 	return nil, errors.New("failed to find variable")
 }
 
-func (service *experimentService) getVariable(experiment *Experiment, audience *Audience, variableName string, userID string) (*Value, error) {
+func (service *service) getVariable(experiment *Experiment, audience *Audience, variableName string, userID string) (*Value, error) {
 	valueGroup, ok := audience.ValueGroups[variableName]
 
 	if !ok {

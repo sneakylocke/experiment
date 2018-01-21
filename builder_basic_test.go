@@ -49,7 +49,7 @@ func testSimpleGetVariable(t *testing.T, config basicTestConfig) {
 	assert.Nil(t, eErr2)
 
 	// Load the experiment service
-	service := NewExperimentService()
+	service := NewService()
 	service.Reload([]Experiment{*experiment1, *experiment2})
 
 	// We should find 'variable_1' and it should be associated with 'experiment_1'
@@ -90,7 +90,7 @@ func testReload(t *testing.T, builder BasicBuilder, variableName string) {
 	// Repeatedly reload the service with the same experiment. The random value should be the same each time
 	for i := 0; i < maxIterations; i++ {
 		experiment, _ := builder.Build()
-		service := NewExperimentService()
+		service := NewService()
 		service.Reload([]Experiment{*experiment})
 
 		result, _ := service.GetVariable(variableName, "", nil)
@@ -119,7 +119,7 @@ func TestFactorial(t *testing.T) {
 	assert.Nil(t, err, "experiment should be built")
 
 	// Prepare the service
-	service := NewExperimentService()
+	service := NewService()
 	service.Reload([]Experiment{*experiment})
 
 	// Count how each value shows up
@@ -180,7 +180,7 @@ func TestNewAlignedBuilderSuccess(t *testing.T) {
 	assert.Nil(t, err, "experiment should built because they are aligned")
 
 	// Prepare the service
-	service := NewExperimentService()
+	service := NewService()
 	service.Reload([]Experiment{*experiment})
 
 	countMap := make(map[int64]int)
@@ -245,7 +245,7 @@ func TestSimpleFullyDistributed(t *testing.T) {
 	experiment, _ := builder.Build()
 
 	// Load the experiment service
-	service := NewExperimentService()
+	service := NewService()
 	service.Reload([]Experiment{*experiment})
 
 	// Create map for counting values
@@ -283,7 +283,7 @@ func TestSimpleNoWeights(t *testing.T) {
 	assert.Nil(t, valid1)
 
 	// Load the experiment service
-	service := NewExperimentService()
+	service := NewService()
 	service.Reload([]Experiment{*experiment1})
 
 	// Check variable_1. Should be control

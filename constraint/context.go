@@ -4,14 +4,7 @@ import (
 	"github.com/juju/errors"
 )
 
-type VARIANT = int
 type OPERATOR = int
-
-const (
-	VARIANT_FLOAT_64 = iota
-	VARIANT_INT_64
-	VARIANT_STRING
-)
 
 const (
 	OPERATOR_EQ = iota
@@ -23,6 +16,20 @@ const (
 	OPERATOR_CONTAINS
 	OPERATOR_NOT_CONTAINS
 )
+
+func comparableOperator(operator OPERATOR) bool {
+	return operator == OPERATOR_EQ ||
+		operator == OPERATOR_NOT_EQ ||
+		operator == OPERATOR_GT ||
+		operator == OPERATOR_GTE ||
+		operator == OPERATOR_LT ||
+		operator == OPERATOR_LTE
+}
+
+func setOperator(operator OPERATOR) bool {
+	return operator == OPERATOR_CONTAINS ||
+		operator == OPERATOR_NOT_CONTAINS
+}
 
 type Context interface {
 	value(key string) (interface{}, error)
@@ -54,14 +61,12 @@ type Resolver interface {
 }
 
 type Constraint struct {
-	variant  VARIANT
 	operator OPERATOR
 	value    interface{}
 }
 
-func NewConstraint(variant VARIANT, operator OPERATOR, value interface{}) *Constraint {
+func NewConstraint(operator OPERATOR, value interface{}) *Constraint {
 	constraint := &Constraint{}
-	constraint.variant = variant
 	constraint.operator = operator
 	constraint.value = value
 
@@ -81,13 +86,19 @@ func (r *resolver) resolve(key string, constraint *Constraint, context Context) 
 
 	switch valueType := value.(type) {
 	case float64:
-		return r.resolveFloat64(constraint, float64(valueType))
+		return r.resolveFloat64(constraint, valueType)
 	case float32:
 		return r.resolveFloat64(constraint, float64(valueType))
-	case int64:
-		return r.resolveFloat64(constraint, float64(int64(valueType)))
 	case int:
-		return r.resolveFloat64(constraint, float64(int(valueType)))
+		return r.resolveInt64(constraint, int64(valueType))
+	case int8:
+		return r.resolveInt64(constraint, int64(valueType))
+	case int16:
+		return r.resolveInt64(constraint, int64(valueType))
+	case int32:
+		return r.resolveInt64(constraint, int64(valueType))
+	case int64:
+		return r.resolveInt64(constraint, int64(valueType))
 	case string:
 		return r.resolveString(constraint, string(valueType))
 	default:
@@ -98,11 +109,123 @@ func (r *resolver) resolve(key string, constraint *Constraint, context Context) 
 }
 
 func (r *resolver) resolveFloat64(constraint *Constraint, value float64) (bool, error) {
-	println("Resolve float 64")
-	return true, nil
+	floatValue, forceError := r.forceFloat64(constraint.value)
+
+	if forceError != nil {
+		return false, errors.Annotatef(forceError, "could not compare %f with %+v", value, constraint.value)
+	}
+
+	if comparableOperator(constraint.operator) {
+		return r.compareFloat64(constraint.operator, value, floatValue)
+	}
+
+	return false, errors.Errorf("could not compare %f with %+v", value, constraint.value)
+}
+func (r *resolver) resolveInt64(constraint *Constraint, value int64) (bool, error) {
+	intValue, forceError := r.forceInt64(constraint.value)
+
+	if forceError != nil {
+		return false, errors.Annotatef(forceError, "could not compare %f with %+v", value, constraint.value)
+	}
+
+	if comparableOperator(constraint.operator) {
+		return r.compareInt64(constraint.operator, value, intValue)
+	}
+
+	return false, errors.Errorf("could not compare %f with %+v", value, constraint.value)
+}
+
+func (r *resolver) compareFloat64(operator OPERATOR, left float64, right float64) (bool, error) {
+	switch operator {
+	case OPERATOR_EQ:
+		return left == right, nil
+	case OPERATOR_NOT_EQ:
+		return left != right, nil
+	case OPERATOR_LT:
+		return left < right, nil
+	case OPERATOR_LTE:
+		return left <= right, nil
+	case OPERATOR_GT:
+		return left > right, nil
+	case OPERATOR_GTE:
+		return left >= right, nil
+	default:
+		return false, errors.Errorf("operator not available for comparison: %d", operator)
+	}
+}
+func (r *resolver) compareInt64(operator OPERATOR, left int64, right int64) (bool, error) {
+	switch operator {
+	case OPERATOR_EQ:
+		return left == right, nil
+	case OPERATOR_NOT_EQ:
+		return left != right, nil
+	case OPERATOR_LT:
+		return left < right, nil
+	case OPERATOR_LTE:
+		return left <= right, nil
+	case OPERATOR_GT:
+		return left > right, nil
+	case OPERATOR_GTE:
+		return left >= right, nil
+	default:
+		return false, errors.Errorf("operator not available for comparison: %d", operator)
+	}
+}
+
+func (r *resolver) arrayCompareString(operator OPERATOR, value string, values []string) (bool, error) {
+
+	found := false
+	for _, v := range values {
+		if v == value {
+			found = true
+			break
+		}
+	}
+
+	switch operator {
+	case OPERATOR_CONTAINS:
+		return found, nil
+	case OPERATOR_NOT_CONTAINS:
+		return !found, nil
+	default:
+		return false, errors.Errorf("operator not available for comparison: %d", operator)
+	}
 }
 
 func (r *resolver) resolveString(constraint *Constraint, value string) (bool, error) {
 	println("Resolve string")
 	return true, nil
+}
+
+func (r *resolver) forceFloat64(value interface{}) (float64, error) {
+	switch v := value.(type) {
+	case float64:
+		return v, nil
+	case float32:
+		return float64(v), nil
+	case int:
+		return float64(v), nil
+	case int32:
+		return float64(v), nil
+	case int64:
+		return float64(v), nil
+	default:
+		return 0, errors.Errorf("could not force %+v to float64", value)
+	}
+}
+func (r *resolver) forceInt64(value interface{}) (int64, error) {
+	switch v := value.(type) {
+	case float64:
+		return int64(v), nil
+	case float32:
+		return int64(v), nil
+	case int:
+		return int64(v), nil
+	case int32:
+		return int64(v), nil
+	case int64:
+		return v, nil
+	default:
+		return 0, errors.Errorf("could not force %+v to float64", value)
+	}
 }

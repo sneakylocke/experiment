@@ -3,6 +3,7 @@ package experiment
 import (
 	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
+	"github.com/sneakylocke/experiment/constraint"
 )
 
 const (
@@ -15,7 +16,7 @@ type AdvancedBuilder interface {
 	AddInts(variableName string, audienceName string, weights []uint32, values []int64) error
 	AddBools(variableName string, audienceName string, weights []uint32, values []bool) error
 
-	// AddConstraint(audienceName string, constraint interface{})
+	AddConstraint(audienceName string, constraint *constraint.Constraint) error
 }
 
 type advancedBuilder struct {
@@ -86,6 +87,21 @@ func (b *advancedBuilder) AddBools(variableName string, audienceName string, wei
 	b.setup(NewBoolValueGroup(variableName, weights, values), weights, variableName, audienceName)
 
 	return nil
+}
+
+func (b *advancedBuilder) AddConstraint(audienceName string, constraint *constraint.Constraint) error {
+	if constraint == nil {
+		return errors.Errorf("cannot add a nil constraint")
+	}
+
+	for _, audience := range b.Audiences {
+		if audience.Name == audienceName {
+			audience.Constraints = append(audience.Constraints, *constraint)
+			return nil
+		}
+	}
+
+	return errors.Errorf("could not find existing audience with name: %s", audienceName)
 }
 
 func (b *advancedBuilder) Build() (*Experiment, error) {

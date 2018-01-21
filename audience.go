@@ -25,10 +25,16 @@ func NewAudience() *Audience {
 	return audience
 }
 
-func (a *Audience) Validate() (bool, error) {
+func (a *Audience) Validate() error {
 	if a.Exposure < 0 || a.Exposure > 1 {
-		return false, errors.Errorf("invalid exposure: %f", a.Exposure)
+		return errors.Errorf("invalid exposure: %f", a.Exposure)
 	}
 
-	return true, nil
+	for _, constraint := range a.Constraints {
+		if err := constraint.Validate(); err != nil {
+			return errors.Annotatef(err, "error validating audience")
+		}
+	}
+
+	return nil
 }

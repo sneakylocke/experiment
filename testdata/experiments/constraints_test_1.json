@@ -1,0 +1,105 @@
+{"name": "large_experiment",
+  "variableNames": ["a", "b"],
+  "audiences":[
+    {
+      "name":"audience_1",
+      "constraints":[
+        {
+          "key":"country",
+          "operator":"EQ",
+          "value":"USA"
+        },
+        {
+          "key":"temperature",
+          "operator":"GT",
+          "value":70
+        },
+        {
+          "key":"temperature",
+          "operator":"LT",
+          "value":80
+        }
+      ],
+      "valueGroups":{
+        "a": {
+          "name":"a",
+          "salt":"some_salt",
+          "controlValue":{},
+          "weightedValues":[{"value": {}, "weight": 1}]
+        },
+        "b": {
+          "name":"b",
+          "salt":"some_salt",
+          "controlValue":{},
+          "weightedValues":[{"value": {}, "weight": 1}]
+        }
+      },
+      "exposure":1,
+      "enabled":true
+    },
+    {
+      "name":"audience_2",
+      "constraints":[
+        {
+          "key":"country",
+          "operator":"EQ",
+          "value":"ITALY"
+        },
+        {
+          "key":"food",
+          "operator":"CONTAINS",
+          "value":["banana", "berry"]
+        }
+      ],
+      "valueGroups":{
+        "a": {
+          "name":"a",
+          "salt":"some_salt",
+          "controlValue":{},
+          "weightedValues":[{"value": {}, "weight": 1}]
+        },
+        "b": {
+          "name":"b",
+          "salt":"some_salt",
+          "controlValue":{},
+          "weightedValues":[{"value": {}, "weight": 1}]
+        }
+      },
+      "exposure":1,
+      "enabled":true
+    },
+    {
+      "name":"audience_3",
+      "constraints":[
+        {
+          "key":"country",
+          "operator":"NEQ",
+          "value":"ITALY"
+        },
+        {
+          "key":"food",
+          "operator":"NCONTAINS",
+          "value":["banana", "berry"]
+        }
+      ],
+      "valueGroups":{
+        "a": {
+          "name":"a",
+          "salt":"some_salt",
+          "controlValue":{},
+          "weightedValues":[{"value": {}, "weight": 1}]
+        },
+        "b": {
+          "name":"b",
+          "salt":"some_salt",
+          "controlValue":{},
+          "weightedValues":[{"value": {}, "weight": 1}]
+        }
+      },
+      "exposure":1,
+      "enabled":true
+    }
+  ],
+  "salt":"salt",
+  "enabled":true
+}

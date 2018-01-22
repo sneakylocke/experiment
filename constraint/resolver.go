@@ -16,20 +16,20 @@ func NewDefaultResolver() Resolver {
 type resolver struct {
 }
 
-// Resolve returns true is the Constraint is satisfied via the provided Context for a given key.
+// Resolve returns true is the Constraint is satisfied via the provided Context for a given Key.
 func (r *resolver) Resolve(constraint *Constraint, context Context) (bool, error) {
 	if context == nil {
 		return false, errors.Errorf("no context provided")
 	}
 
-	// Attempt to retrieve the value at the key
-	value, contextErr := context.value(constraint.key)
+	// Attempt to retrieve the Value at the Key
+	value, contextErr := context.value(constraint.Key)
 
 	if contextErr != nil {
-		return false, errors.Annotatef(contextErr, "key not found in context: %s", constraint.key)
+		return false, errors.Annotatef(contextErr, "Key not found in context: %s", constraint.Key)
 	}
 
-	// Inspect the type of the value and resolve the constraint appropriately.
+	// Inspect the type of the Value and resolve the constraint appropriately.
 	switch valueType := value.(type) {
 	case float64:
 		return r.resolveFloat64(constraint, valueType)
@@ -55,49 +55,67 @@ func (r *resolver) Resolve(constraint *Constraint, context Context) (bool, error
 }
 
 func (r *resolver) resolveFloat64(constraint *Constraint, value float64) (bool, error) {
-	// Attempt to force the constraint's value to a float64 for comparison
-	floatValue, forceError := r.forceFloat64(constraint.value)
+	// Attempt to force the constraint's Value to a float64 for comparison
+	floatValue, forceError := r.forceFloat64(constraint.Value)
 
 	if forceError != nil {
-		return false, errors.Annotatef(forceError, "could not compare %f with %+v", value, constraint.value)
+		return false, errors.Annotatef(forceError, "could not compare %f with %+v", value, constraint.Value)
 	}
 
-	return r.compareFloat64(constraint.operator, value, floatValue)
+	return r.compareFloat64(constraint.Operator, value, floatValue)
 }
 
 func (r *resolver) resolveInt64(constraint *Constraint, value int64) (bool, error) {
-	// Attempt to force the constraint's value to a int64 for comparison
-	intValue, forceError := r.forceInt64(constraint.value)
+	// Attempt to force the constraint's Value to a int64 for comparison
+	intValue, forceError := r.forceInt64(constraint.Value)
 
 	if forceError != nil {
-		return false, errors.Annotatef(forceError, "could not compare %f with %+v", value, constraint.value)
+		return false, errors.Annotatef(forceError, "could not compare %f with %+v", value, constraint.Value)
 	}
 
-	return r.compareInt64(constraint.operator, value, intValue)
+	return r.compareInt64(constraint.Operator, value, intValue)
 }
 
 func (r *resolver) resolveString(constraint *Constraint, value string) (bool, error) {
 	// Attempt direct string comparison first
-	stringValue, stringOk := constraint.value.(string)
+	stringValue, stringOk := constraint.Value.(string)
 
 	if stringOk {
-		switch constraint.operator {
+		switch constraint.Operator {
 		case OPERATOR_EQ:
 			return value == stringValue, nil
 		case OPERATOR_NOT_EQ:
 			return value != stringValue, nil
 		default:
-			return false, errors.Errorf("could not compare strings with operator: %d", constraint.operator)
+			return false, errors.Errorf("could not compare strings with Operator: %d", constraint.Operator)
 		}
 	}
 
 	// Attempt set comparison (contains, not contains)
-	strings, stringsOk := constraint.value.([]string)
+	strings, stringsOk := constraint.Value.([]string)
 	if stringsOk {
-		return r.arrayCompareString(constraint.operator, value, strings)
+		return r.arrayCompareString(constraint.Operator, value, strings)
 	}
 
-	return false, errors.Errorf("could not compare input %s with constraint %+v", value, constraint.value)
+	// Having trouble parsing an array of strings from a JSON file
+	moreStrings, moreStringsOk := constraint.Value.([]interface{})
+	if moreStringsOk {
+		strings := make([]string, 0, len(moreStrings))
+
+		for _, interfaceObject := range moreStrings {
+			s, sOk := interfaceObject.(string)
+
+			if !sOk {
+				return false, errors.Errorf("expected to parse an array of strings, found %+v", interfaceObject)
+			}
+
+			strings = append(strings, s)
+		}
+
+		return r.arrayCompareString(constraint.Operator, value, strings)
+	}
+
+	return false, errors.Errorf("could not compare input %s with constraint %+v", value, constraint.Value)
 }
 
 func (r *resolver) compareFloat64(operator OPERATOR, left float64, right float64) (bool, error) {
@@ -115,7 +133,7 @@ func (r *resolver) compareFloat64(operator OPERATOR, left float64, right float64
 	case OPERATOR_GTE:
 		return left >= right, nil
 	default:
-		return false, errors.Errorf("operator not available for float comparison: %d", operator)
+		return false, errors.Errorf("Operator not available for float comparison: %d", operator)
 	}
 }
 
@@ -134,12 +152,12 @@ func (r *resolver) compareInt64(operator OPERATOR, left int64, right int64) (boo
 	case OPERATOR_GTE:
 		return left >= right, nil
 	default:
-		return false, errors.Errorf("operator not available for int comparison: %d", operator)
+		return false, errors.Errorf("Operator not available for int comparison: %d", operator)
 	}
 }
 
 func (r *resolver) arrayCompareString(operator OPERATOR, value string, values []string) (bool, error) {
-	// Try to find the value in the array of strings
+	// Try to find the Value in the array of strings
 	found := false
 	for _, v := range values {
 		if v == value {
@@ -154,7 +172,7 @@ func (r *resolver) arrayCompareString(operator OPERATOR, value string, values []
 	case OPERATOR_NOT_CONTAINS:
 		return !found, nil
 	default:
-		return false, errors.Errorf("operator not available for comparison: %d", operator)
+		return false, errors.Errorf("Operator not available for comparison: %d", operator)
 	}
 }
 

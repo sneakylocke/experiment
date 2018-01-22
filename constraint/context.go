@@ -27,5 +27,5 @@ func (context *MapContext) value(key string) (interface{}, error) {
 		return value, nil
 	}
 
-	return nil, errors.Errorf("key '%s' does not exists in context", key)
+	return nil, errors.Errorf("Key '%s' does not exists in context", key)
 }

@@ -40,13 +40,13 @@ func (a *Audience) Validate() error {
 		}
 
 		if err := valueGroup.Validate(); err != nil {
-			return errors.Annotatef(err, "error validating value group")
+			return err
 		}
 	}
 
 	for _, constraint := range a.Constraints {
 		if err := constraint.Validate(); err != nil {
-			return errors.Annotatef(err, "error validating audience")
+			return err
 		}
 	}
 

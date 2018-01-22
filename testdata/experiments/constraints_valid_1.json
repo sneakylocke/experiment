@@ -1,0 +1,33 @@
+{"name": "ok_experiment",
+  "variableNames": ["a", "b"],
+  "audiences":[
+    {
+      "name":"audience_1",
+      "constraints":[
+        {
+          "key":"country",
+          "operator":"NEQ",
+          "value":"USA"
+        }
+      ],
+      "valueGroups":{
+        "a": {
+          "name":"a",
+          "salt":"some_salt",
+          "controlValue":{},
+          "weightedValues":[{"value": {}, "weight": 1}]
+        },
+        "b": {
+          "name":"b",
+          "salt":"some_salt",
+          "controlValue":{},
+          "weightedValues":[{"value": {}, "weight": 1}]
+        }
+      },
+      "exposure":1,
+      "enabled":true
+    }
+  ],
+  "salt":"salt",
+  "enabled":true
+}

@@ -35,8 +35,18 @@ func (e *Experiment) Validate() error {
 	// Validate individual audiences
 	for _, audience := range e.Audiences {
 		if err := audience.Validate(); err != nil {
-			return errors.Annotate(err, "invalid audience")
+			return err
 		}
+	}
+
+	// Validate audience names are unique
+	audienceNames := make(map[string]bool)
+	for _, audience := range e.Audiences {
+		if _, ok := audienceNames[audience.Name]; ok {
+			return errors.Errorf("duplicate audience name: %s", audience.Name)
+		}
+
+		audienceNames[audience.Name] = true
 	}
 
 	// Validate experiment names correspond to audience variable names

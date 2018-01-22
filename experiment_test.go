@@ -11,6 +11,10 @@ func TestValid1(t *testing.T) {
 	testValid(t, "testdata/experiments/valid_1.json")
 }
 
+func TestValidConstraint1(t *testing.T) {
+	testValid(t, "testdata/experiments/constraints_valid_1.json")
+}
+
 func TestInvalidNoAudience(t *testing.T) {
 	testInvalid(t, "testdata/experiments/invalid_no_audience.json")
 }
@@ -24,19 +28,25 @@ func TestInvalidMissingVariableName(t *testing.T) {
 }
 
 func testValid(t *testing.T, file string) {
-	data, _ := ioutil.ReadFile(file)
+	data, err := ioutil.ReadFile(file)
+
+	assert.Nil(t, err)
 
 	experiment := &Experiment{}
-	json.Unmarshal(data, experiment)
+	unmarshalErr := json.Unmarshal(data, experiment)
 
+	assert.Nil(t, unmarshalErr)
 	assert.Nil(t, experiment.Validate())
 }
 
 func testInvalid(t *testing.T, file string) {
-	data, _ := ioutil.ReadFile(file)
+	data, err := ioutil.ReadFile(file)
+
+	assert.Nil(t, err)
 
 	experiment := &Experiment{}
-	json.Unmarshal(data, experiment)
+	unmarshalErr := json.Unmarshal(data, experiment)
 
+	assert.Nil(t, unmarshalErr)
 	assert.NotNil(t, experiment.Validate())
 }

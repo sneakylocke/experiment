@@ -107,7 +107,7 @@ func (service *service) GetVariable(variableName string, userID string, context 
 		}
 	}
 
-	return nil, errors.New("failed to find variable")
+	return nil, errors.New("failed to find variable or could not meet constraints with given context")
 }
 
 func (service *service) getVariable(experiment *Experiment, audience *Audience, variableName string, userID string) (*Value, error) {
